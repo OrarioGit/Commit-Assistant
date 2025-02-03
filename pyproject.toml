@@ -99,7 +99,12 @@ license = {text = "Apache-2.0"}
 commit-assistant = "commit_assistant.cli:cli"
 
 [tool.setuptools.package-data]
-commit_assistant = ["src/commit_assistant/resources/*"]
+commit_assistant = [
+    "resources/**/*",
+    "resources/hooks/*",     # 特別指定 hooks 目錄
+    "resources/config/*",    # 特別指定 config 目錄
+    "resources/config/.commit-assistant-config" # 特別指定 config 檔案
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]

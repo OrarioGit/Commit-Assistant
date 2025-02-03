@@ -21,7 +21,7 @@ class EnhancedCommitGenerator:
         if api_key is None:
             console.print("[yellow]檢測到尚未設定 Gemini api key [/yellow]")
 
-            raise ValueError("請設置 GEMINI_API_KEY")
+            raise ValueError("請先執行commit-assistant config setup設定API金鑰")
 
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel(os.getenv("GENERATIVE_MODEL", "gemini-2.0-flash-exp"))
