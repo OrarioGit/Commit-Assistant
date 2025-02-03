@@ -1,0 +1,8 @@
+# 是否開啟AI自動化撰寫commit message
+ENABLE_COMMIT_ASSISTANT=true
+
+# 模型類型 1. gemini-2.0-flash-exp 2. gemini-1.5-flash 3. gemini-1.5-pro
+USE_MODEL=gemini-2.0-flash-exp
+
+# commit style 1. conventional 2. emoji 3. angular 4. custom
+COMMIT_STYLE=custom

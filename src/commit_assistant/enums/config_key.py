@@ -1,0 +1,8 @@
+from enum import Enum
+
+
+class ConfigKey(Enum):
+    ENABLE_COMMIT_ASSISTANT = "ENABLE_COMMIT_ASSISTANT"
+    USE_MODEL = "USE_MODEL"
+    GEMINI_API_KEY = "GEMINI_API_KEY"
+    COMMIT_STYLE = "COMMIT_STYLE"

@@ -1,0 +1,32 @@
+exec < /dev/tty
+
+# 獲取 repository 根目錄
+REPO_ROOT=$(git rev-parse --show-toplevel)
+
+# 檢查 commit 類型，如果是 merge 或 squash，則不執行
+source_type=$2
+if [ "$source_type" = "merge" ] || [ "$source_type" = "squash" ]; then
+    exit 0
+fi
+
+# 檢查是否有python環境
+if ! command -v python &> /dev/null; then
+    echo "Error: Python is not installed."
+    exit 1
+fi
+
+# 檢查命令是否存在
+if ! command -v commit-assistant &> /dev/null; then
+    echo "Error: commit-assistant is not installed."
+    exit 1
+fi
+
+# 執行自動撰寫 commit message 工具
+commit-assistant commit --msg-file "$1" --repo-path "$REPO_ROOT"
+exit_code=$?
+
+# 根據返回值決定是否繼續
+if [ $exit_code -ne 0 ]; then
+    echo "Commit message generation failed"
+    exit $exit_code
+fi
