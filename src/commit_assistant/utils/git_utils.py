@@ -11,7 +11,6 @@ from commit_assistant.utils.console_utils import console
 class GitCommandRunner:
     def __init__(self, repo_path: str) -> None:
         self.repo_path = Path(repo_path).resolve()
-        console.log(f"repo_path: {self.repo_path}")
         self.validate_repo()
 
         if sys.platform == "win32":
@@ -215,7 +214,16 @@ class CommitStyleManager:
         }
 
     def get_prompt(self, style: str, changed_files: List[str], diff_content: str) -> str:
-        """獲取指定風格的 prompt"""
+        """
+        獲取指定風格的 prompt
+
+        Args:
+            style (str): 風格名稱
+            changed_files (List[str]): 變更的文件列表
+            diff_content (str): 變更的內容
+
+        Returns:
+            str: 生成的 prompt"""
         if style not in self.styles:
             raise ValueError(f"不支援的風格：{style}")
 

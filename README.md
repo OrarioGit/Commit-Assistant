@@ -67,6 +67,17 @@ commit-assistant config show
 commit-assistant config clear
 ```
 
+## 支援的風格
+
+- Conventional
+  ![Conventional](docs/images/conventional.png)
+- Emoji
+  ![Emoji](docs/images/emoji.png)
+- Angular
+  ![Angular](docs/images/angular.png)
+- Custom (個人定義給自己內部專案使用的)
+  ![Custom](docs/images/custom.png)
+
 ## 常見問題
 
 **Q: 如何更新 API 金鑰？**  

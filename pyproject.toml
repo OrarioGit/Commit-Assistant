@@ -83,7 +83,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "commit-assistant"
-version = "0.1.0"
+version = "0.1.1"
 description = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
 requires-python = ">=3.8"
 dependencies = [

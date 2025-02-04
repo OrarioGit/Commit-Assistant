@@ -9,12 +9,42 @@ from commit_assistant.enums.config_key import ConfigKey
 from commit_assistant.utils.console_utils import console
 
 
+def _load_config_from_config_file(config: dict[str, Any], repo_root: str) -> None:
+    """
+    從專案配置文件載入配置
+
+    Args:
+        config (dict[str, Any]): 設定
+        repo_root (str): 專案根目錄路徑
+    """
+    repo_root_path = Path(repo_root)
+    config_file = repo_root_path / ".commit-assistant-config"
+
+    if not config_file.exists():
+        return
+
+    with open(config_file, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+
+            # '#' 開頭的行為註解，忽略
+            # 其餘的設定進行寫入
+            if line and not line.startswith("#"):
+                key, value = line.split("=", 1)
+                config[key.strip()] = value.strip()
+
+
 def load_config(repo_root: str = ".") -> None:
     """
-    載入配置，優先順序：
+    載入配置文件
+
+    優先順序:
     1. 專案配置文件 (.commit-assistant-config)
     2. 環境變數 (.env)
     3. 默認值
+
+    Args:
+        repo_root (str, optional): 專案根目錄路徑. Defaults to ".".
     """
     # 定義默認配置
     config: dict[str, Any] = {
@@ -35,16 +65,7 @@ def load_config(repo_root: str = ".") -> None:
 
     # 從專案配置文件載入
     try:
-        repo_root_path = Path(repo_root)
-        config_file = repo_root_path / ".commit-assistant-config"
-
-        if config_file.exists():
-            with open(config_file, "r", encoding="utf-8") as f:
-                for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#"):
-                        key, value = line.split("=", 1)
-                        config[key.strip()] = value.strip()
+        _load_config_from_config_file(config, repo_root)
     except Exception as e:
         console.print(f"[yellow]載入commit-assistant config 失敗: {e}[/yellow]")
 
