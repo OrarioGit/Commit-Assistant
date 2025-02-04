@@ -16,7 +16,9 @@ from commit_assistant.utils.hook_manager import HookManager
     help="Path to git repository",
 )
 def install(repo_path: str) -> None:
-    """安裝 commit-assistant hook 到 git repository中
+    """
+    安裝 commit-assistant hook 到 git repository中
+
     1. 複製 hook 模板到 .git/hooks/prepare-commit-msg
     2. 複製 config 模板到 .commit-assistant-config
     """

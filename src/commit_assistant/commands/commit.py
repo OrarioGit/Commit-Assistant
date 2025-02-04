@@ -177,6 +177,16 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
     default=".",
 )
 def commit(commit_msg_file: str, repo_path: str) -> int:
+    """
+    透過AI生成commit message
+
+    Args:
+        commit_msg_file (str): git commit 要寫入的message檔案
+        repo_path (str): git repository 路徑
+
+    Returns:
+        int: 成功返回0，否則返回其他數值
+    """
     try:
         # 載入環境設定
         load_config(repo_path)
