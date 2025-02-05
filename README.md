@@ -78,6 +78,30 @@ commit-assistant config clear
 - Custom (個人定義給自己內部專案使用的)
   ![Custom](docs/images/custom.png)
 
+## 自定義風格
+支援從本地檔案載入或者自行提供 prompt 字串
+
+從檔案載入：
+此方式將會使用檔案檔名作為 commit 風格名稱
+```bash
+commit-assistant style create --path "<prompt txt 檔案路徑>"
+```
+
+自行提供 Prompt：
+```bash
+commit-assistant style create --prompt "prompt 內容" --style-name "風格名稱"
+```
+
+列出當前使用中的 style
+```bash
+commit-assistant style list
+```
+
+移除 style
+```bash
+commit-assistant style remove --style-name "風格名稱"
+```
+
 ## 常見問題
 
 **Q: 如何更新 API 金鑰？**  
