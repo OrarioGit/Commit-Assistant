@@ -1,36 +1,23 @@
 import os
 import sys
-from typing import List, Union
+from typing import List, Optional
 
 import click
-import google.generativeai as genai
 import questionary
 from google.generativeai.types import GenerateContentResponse
 
+from commit_assistant.core.base_generator import BaseGeminiAIGenerator
 from commit_assistant.enums.exit_code import ExitCode
 from commit_assistant.enums.user_choices import UserChoices
 from commit_assistant.utils.config_utils import load_config
 from commit_assistant.utils.console_utils import console, display_ai_message, loading_spinner
-from commit_assistant.utils.git_utils import CommitStyleManager, GitCommandRunner
+from commit_assistant.utils.git_utils import GitCommandRunner
 
 
-class EnhancedCommitGenerator:
-    def __init__(self) -> None:
-        api_key = os.getenv("GEMINI_API_KEY")
-
-        if api_key is None:
-            console.print("[yellow]檢測到尚未設定 Gemini api key [/yellow]")
-
-            raise ValueError("請先執行commit-assistant config setup設定API金鑰")
-
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(os.getenv("GENERATIVE_MODEL", "gemini-2.0-flash-exp"))
-
-        self.style_manager = CommitStyleManager()
-
+class EnhancedCommitGenerator(BaseGeminiAIGenerator):
     def generate_structured_message(
         self, changed_files: List[str], diff_content: str
-    ) -> Union[GenerateContentResponse, None]:
+    ) -> Optional[GenerateContentResponse]:
         """生成結構化的commit message
 
         Args:
@@ -48,9 +35,7 @@ class EnhancedCommitGenerator:
         console.print(f"[cyan]生成 commit message 使用 <{use_style}> 風格 [/cyan]")
 
         try:
-            response = self.model.generate_content(prompt)
-
-            return response
+            return self._generate_content(prompt)
         except Exception as e:
             console.print("[red]生成commit message時發生錯誤: [/red]")
             console.print(f"[red]{e}[/red]")
