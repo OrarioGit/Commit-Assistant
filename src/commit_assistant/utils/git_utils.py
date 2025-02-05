@@ -38,6 +38,12 @@ class GitCommandRunner:
         result = self.run_git_command(cmd)
         return result
 
+    def get_commit_message(self, start_from: str, end_to: str) -> str:
+        """獲取指定日期範圍內的commit message"""
+        cmd = ["git", "log", f"--since={start_from}", f"--until={end_to}"]
+        result = self.run_git_command(cmd)
+        return result
+
     def run_git_command(self, cmd: List[str]) -> str:
         """執行git命令並處理編碼
 

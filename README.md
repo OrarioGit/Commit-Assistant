@@ -78,6 +78,12 @@ commit-assistant config clear
 - Custom (個人定義給自己內部專案使用的)
   ![Custom](docs/images/custom.png)
 
+## 摘要功能
+可將指定區間的 commit 訊息進行簡短摘要，AI 產生完摘要後除了會顯示於 terminal 外，也會將摘要內容自動複製到剪貼簿中
+```bash
+commit-assistant summary --start-from "commit 起始日期(YYYY-mm-dd HH:MM:SS 或 YYYY-mm-dd)" --end-to "commit 結束日期(YYYY-mm-dd HH:MM:SS 或 YYYY-mm-dd)"
+```
+
 ## 常見問題
 
 **Q: 如何更新 API 金鑰？**  
