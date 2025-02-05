@@ -2,6 +2,7 @@ import locale
 import os
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import List
 
@@ -38,11 +39,21 @@ class GitCommandRunner:
         result = self.run_git_command(cmd)
         return result
 
-    def get_commit_message(self, start_from: str, end_to: str) -> str:
-        """獲取指定日期範圍內的commit message"""
-        cmd = ["git", "log", f"--since={start_from}", f"--until={end_to}"]
-        result = self.run_git_command(cmd)
-        return result
+    def get_commits_in_date_range(self, start_dt: datetime, end_dt: datetime) -> str:
+        """獲取指定日期範圍內的commit message
+
+        Args:
+            start_dt: 起始時間
+            end_dt: 結束時間
+
+        Returns:
+            str: commits 的完整內容
+        """
+        start_str = start_dt.strftime("%Y-%m-%d %H:%M:%S")
+        end_str = end_dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        cmd = ["git", "log", f"--since={start_str}", f"--until={end_str}"]
+        return self.run_git_command(cmd)
 
     def run_git_command(self, cmd: List[str]) -> str:
         """執行git命令並處理編碼
