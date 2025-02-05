@@ -3,5 +3,6 @@
 from .commit import commit
 from .config import config
 from .install import install
+from .style import style
 
-__all__ = ["commit", "install", "config"]
+__all__ = ["commit", "install", "config", "style"]

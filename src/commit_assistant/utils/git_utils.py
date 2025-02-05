@@ -75,143 +75,28 @@ class GitCommandRunner:
 
 class CommitStyleManager:
     def __init__(self) -> None:
-        self.styles = {
-            "conventional": {
-                "prompt": """請根據以下的代碼變更生成符合 Conventional Commits 規範的 commit message。
+        # prompts 檔案路徑
+        self.default_prompt_path = Path(__file__).parent.parent / "prompts/default"
+        self.custom_prompt_path = Path(__file__).parent.parent / "prompts/custom"
+        self.styles = {}
+        self.load_styles()
 
-                變更文件:
-                {changed_files}
-                變更內容:
-                {diff_content}
-
-                格式要求：
-                <type>[optional scope]: <description>
-
-                [optional body]
-
-                [optional footer(s)]
-
-                type 類型：
-                - feat: 新功能
-                - fix: Bug 修復
-                - docs: 文件更新
-                - style: 程式碼格式
-                - refactor: 重構
-                - perf: 效能優化
-                - test: 測試
-                - chore: 建置/工具
-
-                要求：
-                1. 必須使用繁體中文
-                2. 簡潔但資訊完整
-                3. 重大更新需包含 BREAKING CHANGE
-                4. scope 需反映模組名稱""",
-            },
-            "emoji": {
-                "prompt": """請根據以下的代碼變更生成使用 emoji 風格的 commit message。
-
-                變更文件:
-                {changed_files}
-                變更內容:
-                {diff_content}
-
-                格式要求：
-                <emoji> [模組名稱] 主要變更描述
-
-                詳細說明：
-                - 變更內容 1
-                - 變更內容 2
-                - 變更內容 3
-
-                emoji 對照表：
-                主要類型：
-                - ✨ 新功能 (feat)
-                - 🐛 Bug 修復 (fix)
-                - ♻️ 重構 (refactor)
-                - ⚡ 效能優化 (perf)
-                - 📚 文件更新 (docs)
-
-                次要類型：
-                - 🎨 程式碼格式 (style)
-                - 🧪 測試相關 (test)
-                - 🔧 建置/工具 (chore)
-                - 🔥 刪除代碼 (remove)
-                - 🚀 部署相關 (deploy)
-                - 🔒 安全性更新 (security)
-
-                要求：
-                1. 必須使用繁體中文
-                2. emoji 和模組名稱皆為必要
-                3. 主要描述精簡但明確
-                4. 詳細說明條列重要變更
-                5. 相關任務編號選填""",
-            },
-            "angular": {
-                "prompt": """請根據以下的代碼變更生成符合 Angular Style 的 commit message。
-
-                變更文件:
-                {changed_files}
-                變更內容:
-                {diff_content}
-
-                格式要求：
-                <type>(<scope>): <subject>
-                <BLANK LINE>
-                <body>
-                <BLANK LINE>
-                <footer>
-
-                規範：
-                1. subject 不超過 50 字元
-                2. body 每行不超過 72 字元
-                3. type 必須是以下之一：
-                - feat
-                - fix
-                - docs
-                - style
-                - refactor
-                - perf
-                - test
-                - build
-                - ci
-                - chore
-                - revert
-
-                要求：
-                1. 必須使用繁體中文
-                2. scope 需反映模組名稱
-                3. 詳細描述改動原因
-                4. 標註重大更新""",
-            },
-            "custom": {
-                "prompt": """請根據以下的代碼變更生成一個結構化的commit message。
-                變更文件:
-                {changed_files}
-                變更內容:
-                {diff_content}
-
-                請使用以下格式生成新的commit message：
-                [主要功能/模組名稱] (變更類型摘要)
-
-                Bug修正:
-                - [修復內容1]
-                - [修復內容2]
-
-                效能優化:
-                - [優化內容1]
-                - [優化內容2]
-
-                新功能:
-                - [功能內容1]
-                - [功能內容2]
-
-                要求：
-                1. 必須使用繁體中文
-                2. 分類要清晰（Bug修正、效能優化、新功能等）
-                3. 分類下每個項目要簡潔但信息完整
-                4. 如果某個分類沒有相關改動，則不需要包含該分類""",
-            },
-        }
+    def load_styles(self) -> None:
+        """
+        載入支援的風格
+        """
+        for default_prompt_file in self.default_prompt_path.glob("*.txt"):
+            style_name = default_prompt_file.stem
+            with open(default_prompt_file, "r", encoding="utf-8") as f:
+                prompt = f.read()
+                self.styles[style_name] = {"prompt": prompt}
+        
+        # 從 custom 目錄載入自定義風格
+        for custom_prompt_file in self.custom_prompt_path.glob("*.txt"):
+            style_name = custom_prompt_file.stem
+            with open(custom_prompt_file, "r", encoding="utf-8") as f:
+                prompt = f.read()
+                self.styles[style_name] = {"prompt": prompt}
 
     def get_prompt(self, style: str, changed_files: List[str], diff_content: str) -> str:
         """

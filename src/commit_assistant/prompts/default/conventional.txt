@@ -1,0 +1,29 @@
+請根據以下的代碼變更生成符合 Conventional Commits 規範的 commit message。
+
+變更文件:
+{changed_files}
+變更內容:
+{diff_content}
+
+格式要求：
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+
+type 類型：
+- feat: 新功能
+- fix: Bug 修復
+- docs: 文件更新
+- style: 程式碼格式
+- refactor: 重構
+- perf: 效能優化
+- test: 測試
+- chore: 建置/工具
+
+要求：
+1. 必須使用繁體中文
+2. 簡潔但資訊完整
+3. 重大更新需包含 BREAKING CHANGE
+4. scope 需反映模組名稱

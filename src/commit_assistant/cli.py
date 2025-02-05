@@ -1,6 +1,6 @@
 import click
 
-from commit_assistant.commands import commit, config, install
+from commit_assistant.commands import commit, config, install, style
 
 
 @click.group()
@@ -10,11 +10,11 @@ def cli(ctx: click.Context) -> None:
     # 初始化 context
     ctx.ensure_object(dict)
 
-
 # 註冊子命令
 cli.add_command(commit)
 cli.add_command(install)
 cli.add_command(config)
+cli.add_command(style)
 
 if __name__ == "__main__":
     cli()
