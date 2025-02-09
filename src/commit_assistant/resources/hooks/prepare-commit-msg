@@ -3,9 +3,9 @@ exec < /dev/tty
 # 獲取 repository 根目錄
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
-# 檢查 commit 類型，如果是 merge 或 squash，則不執行
+# 檢查 commit 類型，如果是 merge, squash 或 message，則不執行
 source_type=$2
-if [ "$source_type" = "merge" ] || [ "$source_type" = "squash" ]; then
+if [ "$source_type" = "merge" ] || [ "$source_type" = "squash" ] || [ "$source_type" = "message" ]; then
     exit 0
 fi
 
