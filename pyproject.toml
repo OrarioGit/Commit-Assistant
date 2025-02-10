@@ -38,6 +38,7 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "tomli-w>=1.2.0",
+    "pre-commit>=4.1.0",
 ]
 
 [project.license]

@@ -37,6 +37,7 @@ class ProjectInfo:
     # 僅有開發時才需要的套件
     class DevDependencies(Enum):
         TOMLW = "tomli-w>=1.2.0"
+        PRE_COMMIT = "pre-commit>=4.1.0"
 
     # 專案的package路徑
     PACKAGE_PATH = "src"
