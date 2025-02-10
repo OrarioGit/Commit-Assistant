@@ -156,10 +156,15 @@ def summary(start_from: Optional[str], end_to: Optional[str], repo_path: str) ->
         console.print("[red]✗[/red] 摘要生成失敗")
         sys.exit(ExitCode.ERROR)
 
-    display_ai_message(summary.text)
-
     # 將摘要複製到剪貼簿
-    pyperclip.copy(summary.text)
-    console.print("[green]✓[/green] 摘要已複製到剪貼簿")
+    try:
+        pyperclip.copy(summary.text)
+        console.print("[green]✓[/green] 摘要已複製到剪貼簿")
+
+        display_ai_message(summary.text)
+    except Exception:
+        console.print("[red]✗[/red] 無法複製摘要到剪貼簿, 請確認操作環境是否支援剪貼簿操作")
+        console.print("摘要內容如下:")
+        console.print(summary.text)
 
     sys.exit(ExitCode.SUCCESS)
