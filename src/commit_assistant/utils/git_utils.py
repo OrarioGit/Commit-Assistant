@@ -39,12 +39,13 @@ class GitCommandRunner:
         result = self.run_git_command(cmd)
         return result
 
-    def get_commits_in_date_range(self, start_dt: datetime, end_dt: datetime) -> str:
+    def get_commits_in_date_range(self, start_dt: datetime, end_dt: datetime, author: str) -> str:
         """獲取指定日期範圍內的commit message
 
         Args:
             start_dt: 起始時間
             end_dt: 結束時間
+            author: 作者名稱
 
         Returns:
             str: commits 的完整內容
@@ -53,6 +54,10 @@ class GitCommandRunner:
         end_str = end_dt.strftime("%Y-%m-%d %H:%M:%S")
 
         cmd = ["git", "log", f"--since={start_str}", f"--until={end_str}"]
+
+        if author:
+            cmd.extend(["--author", author])
+
         return self.run_git_command(cmd)
 
     def run_git_command(self, cmd: List[str]) -> str:
