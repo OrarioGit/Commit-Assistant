@@ -113,17 +113,26 @@ def _parse_date(date_str: Optional[str]) -> datetime:
 )
 @click.option("--end-to", "end_to", help="Ending date. Same format as start-from", default=None)
 @click.option(
+    "--author",
+    "author",
+    help="""Filters commit history to show only commits where the author's name matches the specified regular expression.
+For example: `--author="^Alice"` will match commits authored by names starting with "Alice".
+""",
+    default=None,
+)
+@click.option(
     "--repo-path",
     type=click.Path(exists=True, file_okay=False, dir_okay=True),
     help="Path to git repository",
     default=".",
 )
-def summary(start_from: Optional[str], end_to: Optional[str], repo_path: str) -> None:
+def summary(start_from: Optional[str], end_to: Optional[str], author: Optional[str], repo_path: str) -> None:
     """將 commit 訊息進行摘要
 
     Args:
         start_from (str): 起始日期, 預設使用當日 00:00:00
         end_to (str): 結束日期, 預設使用當日 23:59:59
+        author (str): 作者名稱, 預設為 None(不篩選作者)
         repo_path (str): git repository 路徑
     """
     # 載入環境設定
@@ -142,7 +151,7 @@ def summary(start_from: Optional[str], end_to: Optional[str], repo_path: str) ->
     git_command_runner = GitCommandRunner(repo_path)
 
     # 獲取該段時間內的commit message
-    commit_message = git_command_runner.get_commits_in_date_range(start_dt, end_dt)
+    commit_message = git_command_runner.get_commits_in_date_range(start_dt, end_dt, author)
     if not commit_message:
         console.print(f"[yellow]{start_dt} ~ {end_dt} 範圍內沒有找到符合條件的 commit message[/yellow]")
         sys.exit(ExitCode.CANCEL)

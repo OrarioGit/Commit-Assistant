@@ -79,7 +79,7 @@ class HookManager:
             new_hook_content = additional_content + new_hook_content
             return new_hook_content
 
-        current_content = self.hook_path.read_text()
+        current_content = self.hook_path.read_text(encoding="utf-8")
 
         # 如果已經包含我們的命令，則不需要重複添加
         if "commit-assistant" in current_content:
