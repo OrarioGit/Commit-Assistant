@@ -21,7 +21,7 @@ class ProjectPaths:
     ROOT_DIR = Path(__file__).parent.parent.parent.parent
 
     # 套件相關路徑
-    PACKAGE_DIR = ROOT_DIR / "src" / "commit_assistant"
+    PACKAGE_DIR = Path(__file__).parent.parent
     RESOURCES_DIR = PACKAGE_DIR / "resources"
 
     # 配置相關路徑
