@@ -1,6 +1,6 @@
 import click
 
-from commit_assistant.commands import commit, config, install, summary
+from commit_assistant.commands import commit, config, install, summary, update
 
 
 @click.group()
@@ -16,6 +16,8 @@ cli.add_command(commit)
 cli.add_command(install)
 cli.add_command(config)
 cli.add_command(summary)
+cli.add_command(update)
+
 
 if __name__ == "__main__":
     cli()

@@ -5,6 +5,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 
+from commit_assistant.core.project_config import ProjectInfo
 from commit_assistant.enums.config_key import ConfigKey
 from commit_assistant.utils.console_utils import console
 
@@ -18,7 +19,7 @@ def _load_config_from_config_file(config: dict[str, Any], repo_root: str) -> Non
         repo_root (str): 專案根目錄路徑
     """
     repo_root_path = Path(repo_root)
-    config_file = repo_root_path / ".commit-assistant-config"
+    config_file = repo_root_path / ProjectInfo.REPO_ASSISTANT_DIR / ".commit-assistant-config"
 
     if not config_file.exists():
         return

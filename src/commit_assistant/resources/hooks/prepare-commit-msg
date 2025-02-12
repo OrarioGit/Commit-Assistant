@@ -2,10 +2,21 @@ exec < /dev/tty
 
 # 獲取 repository 根目錄
 REPO_ROOT=$(git rev-parse --show-toplevel)
+CONFIG_FILE="$REPO_ROOT/.commit-assistant/.commit-assistant-config"
 
-# 檢查 commit 類型，如果是 merge, squash 或 message，則不執行
+# 如果配置文件存在，則讀取配置
+if [ -f "$CONFIG_FILE" ]; then
+    source "$CONFIG_FILE"
+
+    # 檢查是否開啟自動撰寫 commit message 功能
+    if [ "$ENABLE_COMMIT_ASSISTANT" != "true" ]; then
+        exit 0
+    fi
+fi
+
+# 檢查 commit 類型，只有在創建新訊息時才觸發
 source_type=$2
-if [ "$source_type" = "merge" ] || [ "$source_type" = "squash" ] || [ "$source_type" = "message" ]; then
+if [ "$source_type" != "" ]; then
     exit 0
 fi
 
