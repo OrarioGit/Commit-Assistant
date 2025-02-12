@@ -67,6 +67,44 @@ commit-assistant config show
 commit-assistant config clear
 ```
 
+## 更新管理
+
+Commit Assistant 提供了方便的更新機制，可以輕鬆更新單一或多個專案的相關設定。
+
+### 更新單一專案
+
+在專案目錄下執行：
+```bash
+commit-assistant update
+```
+
+或指定特定專案路徑：
+```bash
+commit-assistant update --repo-path /path/to/your/repo
+```
+
+這個指令會：
+- 更新專案的 Git hook 設定
+- 更新相關配置文件
+- 自動記錄安裝信息
+
+### 批量更新所有專案
+
+更新所有曾經安裝過的專案：
+```bash
+commit-assistant update --all-repo
+```
+
+這個指令會：
+- 自動掃描所有已安裝的專案
+- 依序更新每個專案的設定
+- 提供更新進度和結果報告
+- 自動跳過不存在的專案路徑
+
+如果更新過程中某個專案發生錯誤，程式會：
+- 顯示錯誤信息
+- 繼續處理其他專案
+
 ## 支援的風格
 
 - Conventional
@@ -85,6 +123,13 @@ commit-assistant summary --start-from "commit 起始日期(YYYY-mm-dd HH:MM:SS �
 ```
 
 ## 共同開發
+### Git 工作流程
+為保持提交歷史的整潔，請使用 rebase 方式進行更新：
+```bash
+# 更新專案時使用 rebase
+git pull --rebase origin main
+```
+
 在開始開發之前，請依序完成以下設定：
 ### 1. 安裝開發相依套件
 ```bash
@@ -111,19 +156,22 @@ ruff check .
 # 自動修正格式問題
 ruff format .
 ```
+
 建議在你的開發環境中設定編輯器支援 ruff，這樣可以即時看到程式碼問題：
 
-VS Code：安裝 "Ruff" 擴充套件
-PyCharm：啟用 Ruff 整合
-其他編輯器：參考 Ruff 官方文件
+- VS Code：安裝 "Ruff" 擴充套件
+- PyCharm：啟用 Ruff 整合
+- 其他編輯器：[參考 Ruff 官方文件](https://github.com/astral-sh/ruff)
 
 ### 4. 關於產生 pyproject.toml
 在本專案中如果有相關的更動比如**版本更新**、**依賴更新**等
 可先更改`core/project_config.py`裡面的設定
 並執行以下指令
+
 ```bash
 python -m commit_assistant.scripts.build_pyproject
 ```
+
 該指令可根據變更產生出統一規範的pyproject.toml檔
 **注意!** 執行前需先使用`pip install -e ".[dev]"`進行安裝
 

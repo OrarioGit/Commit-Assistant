@@ -3,9 +3,12 @@ from pathlib import Path
 
 import click
 
+from commit_assistant.core.paths import ProjectPaths
+from commit_assistant.core.project_config import ProjectInfo
 from commit_assistant.utils.config_utils import install_config
 from commit_assistant.utils.console_utils import console
 from commit_assistant.utils.hook_manager import HookManager
+from commit_assistant.utils.installation_manager import InstallationManager
 
 
 @click.command()
@@ -27,8 +30,7 @@ def install(repo_path: str) -> None:
         hook_manager = HookManager(pure_repo_path)
 
         # 讀取 hook 模板
-        package_dir = Path(__file__).parent.parent
-        hook_template = package_dir / "resources" / "hooks" / "prepare-commit-msg"
+        hook_template = ProjectPaths.HOOKS_DIR / ProjectInfo.HOOK_TEMPLATE_NAME
         hook_content = hook_template.read_text(encoding="utf-8")
 
         # 安裝 hook
@@ -37,6 +39,10 @@ def install(repo_path: str) -> None:
 
         # 安裝 config
         install_config(repo_path)
+
+        # 紀錄安裝訊息
+        installation_manager = InstallationManager()
+        installation_manager.add_installation(pure_repo_path)
 
         sys.exit(0)
 

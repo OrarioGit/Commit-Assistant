@@ -25,9 +25,9 @@ class ProjectPaths:
     RESOURCES_DIR = PACKAGE_DIR / "resources"
 
     # 配置相關路徑
-    CONFIG_FILE = ROOT_DIR / "pyproject.toml"
+    PYPROJECT_DIR = ROOT_DIR / "pyproject.toml"
     HOOKS_DIR = RESOURCES_DIR / "hooks"
-    CONFIG_TEMPLATE_DIR = RESOURCES_DIR / "config"
+    CONFIG_DIR = RESOURCES_DIR / "config"
 
     @classmethod
     def get_hook_template(cls, name: str) -> Path:
@@ -37,4 +37,4 @@ class ProjectPaths:
     @classmethod
     def get_config_template(cls, name: str) -> Path:
         """取得設定檔模板路徑"""
-        return cls.CONFIG_TEMPLATE_DIR / name
+        return cls.CONFIG_DIR / name

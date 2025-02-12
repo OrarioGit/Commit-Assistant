@@ -19,7 +19,7 @@ from typing import List
 
 class ProjectInfo:
     NAME: str = "commit-assistant"
-    VERSION: str = "0.1.3"
+    VERSION: str = "0.1.4"
     DESCRIPTION: str = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
     PYTHON_REQUIRES: str = ">=3.8"
     LICENSE: str = "Apache-2.0"
@@ -32,11 +32,12 @@ class ProjectInfo:
         QUESTIONARY = "questionary>=2.1.0"
         RICH = "rich>=13.9.4"
         PYPERCLIP = "pyperclip>=1.9.0"
+        TOMLI = "tomli>=2.2.1"
+        TOMLW = "tomli-w>=1.2.0"
 
     # 專案開發的相依套件
     # 僅有開發時才需要的套件
     class DevDependencies(Enum):
-        TOMLW = "tomli-w>=1.2.0"
         PRE_COMMIT = "pre-commit>=4.1.0"
 
     # 專案的package路徑
@@ -59,6 +60,18 @@ class ProjectInfo:
             "resources/config/.commit-assistant-config",
         ]
     }
+
+    # hook template 名稱
+    HOOK_TEMPLATE_NAME = "prepare-commit-msg"
+
+    # 設定檔 template 名稱
+    CONFIG_TEMPLATE_NAME = ".commit-assistant-config"
+
+    # 會在使用者專案底下建立我們的專案管理目錄名稱
+    REPO_ASSISTANT_DIR = ".commit-assistant"
+
+    # 用來記錄比如使用者安裝的版本號、repo路徑等資訊
+    INSTALLATIONS_FILE = "installations.toml"
 
     @classmethod
     def get_dependencies(cls) -> List[str]:
