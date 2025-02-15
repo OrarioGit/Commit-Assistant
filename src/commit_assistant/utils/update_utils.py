@@ -18,7 +18,7 @@ class UpdateManager:
         # 取出我們要更新的內容(模板、設定檔)
         self.hook_template_path = ProjectPaths.HOOKS_DIR / ProjectInfo.HOOK_TEMPLATE_NAME
         self.config_template_path = ProjectPaths.CONFIG_DIR / ProjectInfo.CONFIG_TEMPLATE_NAME
-        self.installations_path = ProjectPaths.RESOURCES_DIR / "installations.toml"
+        self.installations_path = ProjectPaths.RESOURCES_DIR / ProjectInfo.INSTALLATIONS_FILE
 
     def _update_config(self) -> None:
         """更新設定檔，保留使用者自定義的設定值並與新模板合併"""
@@ -46,8 +46,14 @@ class UpdateManager:
         """解析config內容為dictionary格式"""
         config = {}
         for line in content.splitlines():
+            # 去除tab，避免使用者習慣性的使用tab排版
+            line = line.replace("\t", " ")
+
+            # 去除前後空白
+            line = line.strip()
+
             # 跳過註解和空行
-            if line.strip() and not line.startswith("#"):
+            if line and not line.startswith("#"):
                 key, value = line.split("=", 1)
                 config[key.strip()] = value.strip()
         return config
@@ -114,5 +120,5 @@ class UpdateManager:
         hook_manager.update_hook(new_hook_content)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     UpdateManager(Path(".")).update()

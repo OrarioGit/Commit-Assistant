@@ -1,19 +1,22 @@
 import os
 import sys
-from pathlib import Path
-from typing import Optional
 
 import click
 
+from commit_assistant.core.paths import ProjectPaths
 from commit_assistant.enums.config_key import ConfigKey
 from commit_assistant.utils.config_utils import load_config
 from commit_assistant.utils.console_utils import console
 
 
+def _mask_api_key(api_key: str) -> str:
+    """遮蔽部分API Key"""
+    return f"{api_key[:5]}{'*' * (len(api_key) - 10)}{api_key[-5:]}"
+
+
 @click.group()
 def config() -> None:
     """配置管理命令"""
-    pass
 
 
 @config.command()
@@ -22,8 +25,7 @@ def setup(key: str) -> None:
     """設定 Google Gemini API Key"""
     try:
         # 寫入key到.env文件
-        package_path = Path(__file__).parent.parent
-        env_file = package_path / ".env"
+        env_file = ProjectPaths.PACKAGE_DIR / ".env"
 
         if not env_file.exists():
             env_file.touch()
@@ -53,9 +55,7 @@ def show() -> None:
             if api_key is None:
                 console.print(f"{config_member.value}: [yellow]未配置[/yellow]")
             else:
-                console.print(
-                    f"{config_member.value}: {api_key[:5]}{'*' * (len(api_key) - 10)}{api_key[-5:]}"
-                )
+                console.print(_mask_api_key(api_key))
         else:
             config_member_value = os.getenv(config_member.value)
             console.print(f"{config_member.value}: {config_member_value}")
@@ -65,8 +65,7 @@ def show() -> None:
 def clear() -> None:
     """清除所有配置"""
     # 判斷.env文件是否存在，存在則刪除
-    package_path = Path(__file__).parent.parent
-    env_file = package_path / ".env"
+    env_file = ProjectPaths.PACKAGE_DIR / ".env"
     if env_file.exists():
         if click.confirm("確定要清除所有配置嗎？"):
             env_file.unlink()
@@ -76,7 +75,7 @@ def clear() -> None:
 
 
 @config.command()
-def get_api_key() -> Optional[str]:
+def get_api_key() -> None:
     """獲取 API Key"""
     load_config()
 
@@ -84,7 +83,8 @@ def get_api_key() -> Optional[str]:
 
     if api_key is None:
         console.print("[yellow]API Key 未配置[/yellow]")
-        return None
+        return
 
     # 返回部分API Key
-    return f"{api_key[:5]}{'*' * (len(api_key) - 10)}{api_key[-5:]}"
+    mask_api_key = _mask_api_key(api_key)
+    console.print(f"API Key: {mask_api_key}")

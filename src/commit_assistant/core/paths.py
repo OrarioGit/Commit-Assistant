@@ -14,20 +14,32 @@
 """
 
 from pathlib import Path
+from typing import Any, Final
 
 
 class ProjectPaths:
     # 取得專案根目錄
-    ROOT_DIR = Path(__file__).parent.parent.parent.parent
+    ROOT_DIR: Final[Path] = Path(__file__).parent.parent.parent.parent
 
     # 套件相關路徑
-    PACKAGE_DIR = Path(__file__).parent.parent
-    RESOURCES_DIR = PACKAGE_DIR / "resources"
+    PACKAGE_DIR: Final[Path] = Path(__file__).parent.parent
+    RESOURCES_DIR: Final[Path] = PACKAGE_DIR / "resources"
 
     # 配置相關路徑
-    PYPROJECT_DIR = ROOT_DIR / "pyproject.toml"
-    HOOKS_DIR = RESOURCES_DIR / "hooks"
-    CONFIG_DIR = RESOURCES_DIR / "config"
+    PYPROJECT_DIR: Final[Path] = ROOT_DIR / "pyproject.toml"
+    HOOKS_DIR: Final[Path] = RESOURCES_DIR / "hooks"
+    CONFIG_DIR: Final[Path] = RESOURCES_DIR / "config"
+
+    def __class_getitem__(cls, _: None) -> None:
+        """避免Class被繼承"""
+        raise TypeError(f"{cls.__name__} 不能被繼承")
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        raise TypeError(f"{cls.__name__} 不能被繼承")
+
+    def __setattr__(self, name: str, value: Any) -> None:
+        """防止修改屬性"""
+        raise AttributeError(f"不能修改 {self.__class__.__name__} 的屬性")
 
     @classmethod
     def get_hook_template(cls, name: str) -> Path:

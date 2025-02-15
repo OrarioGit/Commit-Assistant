@@ -113,6 +113,6 @@ class InstallationManager:
             console.print(f"[green]已移除安裝信息: {normalized_path} ID:{installation_id} [/green]")
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     installation_manager = InstallationManager()
     installation_manager.add_installation(Path("."))

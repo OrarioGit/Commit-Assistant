@@ -30,5 +30,5 @@ def update_pyproject_toml() -> None:
         tomli_w.dump(config, f)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     update_pyproject_toml()

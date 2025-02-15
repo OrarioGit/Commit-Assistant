@@ -71,7 +71,7 @@ class HookManager:
         )
 
         if hook_file.exists():
-            # 檢查使否該hook已經包含我們的命令
+            # 檢查是否該hook已經包含我們的命令
             current_content = hook_file.read_text(encoding="utf-8")
             if self.COMMIT_ASSISTANT_MARKER_START in current_content:
                 console.print(
@@ -90,28 +90,29 @@ class HookManager:
         # 設置執行權限
         hook_file.chmod(0o755)
 
-    def _merge_hooks(self, new_hook_content: str) -> str:
-        """合併新舊 hook 的內容"""
+    def _inject_hooks(self, hook_template_content: str) -> str:
+        """往使用者的 hook 文件中注入 commit-assistant 的內容"""
+        # 使用者沒有自定義 hook，直接使用我們的模板
         if not self.hook_path.exists():
             # 加入 bin/sh 開頭和標記
             content = "#!/bin/sh\n\n"
             content += f"{self.COMMIT_ASSISTANT_MARKER_START}\n"
-            content += new_hook_content
+            content += hook_template_content
             content += f"\n{self.COMMIT_ASSISTANT_MARKER_END}\n"
             return content
 
         current_content = self.hook_path.read_text(encoding="utf-8")
 
-        # 如果已經包含我們的命令，則不需要重複添加
+        # 如果已經包含我們的hook，則不需要重複添加
         if self.COMMIT_ASSISTANT_MARKER_START in current_content:
             return current_content
 
-        # 合併腳本
+        # 注入
         merged_content = "#!/bin/sh\n\n"
         merged_content += "# Original hook content\n"
         merged_content += current_content.replace("#!/bin/sh\n", "")
         merged_content += f"\n{self.COMMIT_ASSISTANT_MARKER_START}\n"
-        merged_content += new_hook_content
+        merged_content += hook_template_content
         merged_content += f"\n{self.COMMIT_ASSISTANT_MARKER_END}\n"
 
         return merged_content
@@ -264,11 +265,11 @@ class HookManager:
         # 備份現有的 hook
         backup_path = self._backup_existing_hook()
         if backup_path:
-            console.print(f"正在備份舊版hook於 {backup_path}...")
+            console.print(f"已備份舊版hook於 {backup_path}...")
 
-        # 合併並寫入新的 hook
-        merged_content = self._merge_hooks(hook_content)
-        self.hook_path.write_text(merged_content, encoding="utf-8")
+        # 將我們的 hook 內容注入到現有 hook 文件中
+        injected_content = self._inject_hooks(hook_content)
+        self.hook_path.write_text(injected_content, encoding="utf-8")
         self.hook_path.chmod(0o755)
 
     def update_hook(self, new_hook_content: str) -> None:

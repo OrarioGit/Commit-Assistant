@@ -21,7 +21,7 @@ class ProjectInfo:
     NAME: str = "commit-assistant"
     VERSION: str = "0.1.4"
     DESCRIPTION: str = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
-    PYTHON_REQUIRES: str = ">=3.8"
+    PYTHON_REQUIRES: str = ">=3.9"
     LICENSE: str = "Apache-2.0"
 
     # 專案的相依套件
@@ -39,6 +39,8 @@ class ProjectInfo:
     # 僅有開發時才需要的套件
     class DevDependencies(Enum):
         PRE_COMMIT = "pre-commit>=4.1.0"
+        PYTEST = "pytest>=8.3.4"
+        PYTEST_COV = "pytest-cov>=6.0.0"
 
     # 專案的package路徑
     PACKAGE_PATH = "src"
@@ -72,6 +74,25 @@ class ProjectInfo:
 
     # 用來記錄比如使用者安裝的版本號、repo路徑等資訊
     INSTALLATIONS_FILE = "installations.toml"
+
+    # unit test相關
+    TEST_DIRS = ["commit-assistant"]
+    TEST_COMMAND = "--cov=commit_assistant --cov-report=term-missing --cov-report=html -v"
+
+    # 要忽略的檔案
+    OMIT_FILES = [
+        "tests/*",
+        "*/__init__.py",
+    ]
+
+    # 最低的測試覆蓋率要求
+    COVERAGE_THRESHOLD = 90
+    EXCLUDE_LINES = [
+        "pragma: no cover",
+        "def __repr__",
+        "if TYPE_CHECKING",
+        "if __name__ == '__main__'",
+    ]
 
     @classmethod
     def get_dependencies(cls) -> List[str]:

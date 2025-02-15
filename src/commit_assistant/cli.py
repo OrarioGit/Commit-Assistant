@@ -4,11 +4,8 @@ from commit_assistant.commands import commit, config, install, summary, update
 
 
 @click.group()
-@click.pass_context
-def cli(ctx: click.Context) -> None:
+def cli() -> None:
     """Commit Assistant CLI 工具"""
-    # 初始化 context
-    ctx.ensure_object(dict)
 
 
 # 註冊子命令
@@ -19,5 +16,5 @@ cli.add_command(summary)
 cli.add_command(update)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     cli()

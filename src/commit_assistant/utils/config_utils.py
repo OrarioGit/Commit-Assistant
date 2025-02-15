@@ -5,6 +5,7 @@ from typing import Any
 
 from dotenv import load_dotenv
 
+from commit_assistant.core.paths import ProjectPaths
 from commit_assistant.core.project_config import ProjectInfo
 from commit_assistant.enums.config_key import ConfigKey
 from commit_assistant.utils.console_utils import console
@@ -56,8 +57,7 @@ def load_config(repo_root: str = ".") -> None:
     }
 
     # 從 .env 載入，覆蓋默認配置
-    package_path = Path(__file__).parent.parent
-    dotenv_path = package_path / ".env"
+    dotenv_path = ProjectPaths.PACKAGE_DIR / ".env"
     load_dotenv(dotenv_path)
     for key in config:
         env_value = os.getenv(key)
@@ -80,15 +80,14 @@ def install_config(repo_root: str) -> None:
     """
     安裝配置文件到專案根目錄
     """
-    config_file = Path(repo_root) / ".commit-assistant-config"
+    config_file = Path(repo_root) / ProjectInfo.CONFIG_TEMPLATE_NAME
 
     if config_file.exists():
         return
 
     try:
         # 複製默認的配置文件到專案根目錄
-        package_dir = Path(__file__).parent.parent
-        default_config_file = package_dir / "resources" / "config" / ".commit-assistant-config"
+        default_config_file = ProjectPaths.CONFIG_DIR / ProjectInfo.CONFIG_TEMPLATE_NAME
 
         shutil.copy(default_config_file, config_file)
     except Exception as e:

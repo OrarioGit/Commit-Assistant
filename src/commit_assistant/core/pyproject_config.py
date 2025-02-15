@@ -30,6 +30,14 @@ def generate_toml_config() -> Dict[str, Any]:
                     }
                 },
             },
+            "pytest": {"ini_options": {"addopts": ProjectInfo.TEST_COMMAND}},
+            "coverage": {
+                "run": {"source": ProjectInfo.TEST_DIRS, "omit": ProjectInfo.OMIT_FILES},
+                "report": {
+                    "fail_under": ProjectInfo.COVERAGE_THRESHOLD,
+                    "exclude_lines": ProjectInfo.EXCLUDE_LINES,
+                },
+            },
         },
         "build-system": {
             "requires": ["setuptools>=45", "wheel"],
