@@ -130,3 +130,11 @@ def test_update_config_without_config_path(update_manager: UpdateManager, mock_t
     updated_content = update_manager.config_path.read_text(encoding="utf-8")
     assert "COMMIT_STYLE=custom" in updated_content  # 保留使用者設定
     assert "ENABLE_COMMIT_ASSISTANT=true" in updated_content  # 新增的設定
+
+
+def test_update(update_manager: UpdateManager, mock_template_paths: Dict) -> None:
+    """測試更新功能且不需要遷移舊版設定檔"""
+    update_manager.update()
+    new_config = update_manager.repo_path / ProjectInfo.REPO_ASSISTANT_DIR / ProjectInfo.CONFIG_TEMPLATE_NAME
+    assert new_config.exists()
+    assert "COMMIT_STYLE=custom" in new_config.read_text()
