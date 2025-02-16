@@ -1,0 +1,39 @@
+name: Python Test CI
+
+on:
+  push:
+    branches: [ main ]  # 當推送到 main 分支時觸發
+  pull_request:
+    branches:
+      - '**' # 所有分支開pr觸發
+    types: [opened, synchronize, reopened]
+    paths:
+        - '**.py'  # 只有當 Python 文件改變時才觸發
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+        matrix:
+          python-version: ['3.9', '3.10', '3.11', '3.12']  # 測試多個 Python 版本
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Run tests with pytest
+      run: |
+        pytest
+
+    - name: Upload results to Codecov
+      uses: codecov/codecov-action@v5

@@ -15,7 +15,7 @@ include = [
 ]
 
 [tool.pytest.ini_options]
-addopts = "--cov=commit_assistant --cov-report=term-missing --cov-report=html -v"
+addopts = "--cov=commit_assistant --cov-branch --cov-report=term-missing --cov-report=html --cov-report=xml -v"
 
 [tool.coverage.run]
 source = [

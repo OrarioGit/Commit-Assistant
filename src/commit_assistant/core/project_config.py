@@ -77,7 +77,9 @@ class ProjectInfo:
 
     # unit test相關
     TEST_DIRS = ["commit-assistant"]
-    TEST_COMMAND = "--cov=commit_assistant --cov-report=term-missing --cov-report=html -v"
+    TEST_COMMAND = (
+        "--cov=commit_assistant --cov-branch --cov-report=term-missing --cov-report=html --cov-report=xml -v"
+    )
 
     # 要忽略的檔案
     OMIT_FILES = [

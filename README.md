@@ -1,4 +1,6 @@
 # Commit Assistant
+[![codecov](https://codecov.io/gh/OrarioGit/Commit-Assistant/graph/badge.svg?token=18M86ZC93G)](https://codecov.io/gh/OrarioGit/Commit-Assistant)
+![versions](docs/images/python_version_badges.svg)
 
 Commit Assistant 是一個基於 AI 的 Git commit 訊息生成工具，它能夠：
 - 自動分析你的程式碼變更
