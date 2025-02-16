@@ -96,6 +96,21 @@ def test_remove_installation(installation_manager: InstallationManager, tmp_path
     assert not installation_manager.get_installation(test_repo)
 
 
+def test_remove_installation_but_without_installation(
+    installation_manager: InstallationManager, tmp_path: Path, capsys: pytest.CaptureFixture
+) -> None:
+    """測試移除安裝記錄，但沒有包含任何安裝記錄"""
+    test_repo = tmp_path / "test_repo"
+    test_repo.mkdir()
+
+    installation_manager.remove_installation(test_repo)
+    assert not installation_manager.get_installation(test_repo)
+
+    # 驗證console輸出
+    console_output = capsys.readouterr().out
+    assert "未找到安裝信息" in console_output
+
+
 def test_get_all_installations_with_missing_path(
     installation_manager: InstallationManager, tmp_path: Path
 ) -> None:

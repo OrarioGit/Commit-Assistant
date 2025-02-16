@@ -69,15 +69,13 @@ def _update(repo_path: str) -> None:
 @click.pass_context
 def update(ctx: click.Context, repo_path: str, all_repo: bool) -> None:
     """將專案底下的hook與config等相關檔案更新至最新版本"""
-    # 如果沒有指定子命令，則執行默認的更新邏輯
-    if ctx.invoked_subcommand is None:
-        try:
-            if all_repo:
-                _update_all_repos()
-            else:
-                _update(repo_path)
-            sys.exit(0)
+    try:
+        if all_repo:
+            _update_all_repos()
+        else:
+            _update(repo_path)
+        sys.exit(0)
 
-        except Exception as e:
-            console.print(f"[red]更新失敗，錯誤: {str(e)}[/red]")
-            sys.exit(1)
+    except Exception as e:
+        console.print(f"[red]更新失敗，錯誤: {str(e)}[/red]")
+        sys.exit(1)

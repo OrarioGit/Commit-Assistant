@@ -226,6 +226,23 @@ def test_commit_command_user_cancel_update_commit_message(
     assert "Commit 已取消" in result.output
 
 
+def test_commit_command_user_choice_not_in_choices(
+    mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
+) -> None:
+    """測試使用者在更新message檔案時，使用者選擇意外的不在選項中"""
+    msg_file = tmp_path / "COMMIT_MSG"
+    msg_file.touch()
+
+    runner = CliRunner()
+
+    # 模擬使用者選擇非預期的選項
+    with patch.object(commit_module, "get_user_choice", return_value="unexpected choice"):
+        result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
+
+    assert result.exit_code == ExitCode.ERROR.value
+    assert "選項錯誤，無法使用的選項" in result.output
+
+
 def test_commit_command_user_update_commit_message_error(
     mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
 ) -> None:

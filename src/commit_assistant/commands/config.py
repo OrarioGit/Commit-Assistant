@@ -70,6 +70,8 @@ def clear() -> None:
         if click.confirm("確定要清除所有配置嗎？"):
             env_file.unlink()
             console.print("[green]✓[/green] 配置已清除")
+        else:
+            console.print("[yellow]動作已取消[/yellow]")
     else:
         console.print("[yellow]沒有找到配置文件[/yellow]")
 

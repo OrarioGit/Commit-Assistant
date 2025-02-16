@@ -4,7 +4,7 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from commit_assistant.enums.commit_style import CommitStyle
 from commit_assistant.utils.console_utils import console
@@ -40,7 +40,7 @@ class GitCommandRunner:
         result = self.run_git_command(cmd)
         return result
 
-    def get_commits_in_date_range(self, start_dt: datetime, end_dt: datetime, author: str) -> str:
+    def get_commits_in_date_range(self, start_dt: datetime, end_dt: datetime, author: Optional[str]) -> str:
         """獲取指定日期範圍內的commit message
 
         Args:
@@ -56,7 +56,7 @@ class GitCommandRunner:
 
         cmd = ["git", "log", f"--since={start_str}", f"--until={end_str}"]
 
-        if author:
+        if author is not None and author.strip():
             cmd.extend(["--author", author])
 
         return self.run_git_command(cmd)

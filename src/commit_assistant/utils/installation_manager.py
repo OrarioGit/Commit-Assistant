@@ -111,6 +111,8 @@ class InstallationManager:
             del installations_info["installations"][installation_id]
             self._save_installations(installations_info)
             console.print(f"[green]已移除安裝信息: {normalized_path} ID:{installation_id} [/green]")
+        else:
+            console.print(f"[yellow]未找到安裝信息: {normalized_path}[/yellow]")
 
 
 if __name__ == "__main__":  # pragma: no cover

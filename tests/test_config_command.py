@@ -118,6 +118,21 @@ def test_clear_command(mock_package_path: Path) -> None:
     assert "配置已清除" in result.output
 
 
+def test_clear_command_and_cancel(mock_package_path: Path) -> None:
+    """測試 clear 命令，但取消刪除"""
+    runner = CliRunner()
+
+    # 創建測試用的 .env 檔案，並先寫入一些內容
+    env_file = mock_package_path / ".env"
+    env_file.write_text(f"{ConfigKey.GEMINI_API_KEY.value}=test-key")
+
+    # 測試取消刪除
+    result = runner.invoke(clear, input="n\n")
+    assert result.exit_code == 0
+    assert env_file.exists()
+    assert "動作已取消" in result.output
+
+
 def test_clear_command_no_file(mock_package_path: Path) -> None:
     """測試當 .env 不存在時的 clear 命令"""
     runner = CliRunner()
