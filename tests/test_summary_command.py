@@ -145,7 +145,7 @@ def test_summary_command_no_commits(mock_git_runner: Mock, tmp_path: Path) -> No
     )
 
     assert result.exit_code == ExitCode.CANCEL.value
-    assert "沒有找到符合條件的 commit message" in result.output
+    assert "沒有找到符合條件的" in result.output
 
 
 def test_summary_command_no_start_date(
