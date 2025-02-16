@@ -5,6 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
+from commit_assistant.enums.commit_style import CommitStyle
 from commit_assistant.utils.git_utils import CommitStyleManager, GitCommandRunner
 
 
@@ -130,8 +131,8 @@ def test_get_prompt_valid_style() -> None:
     diff_content = "test diff"
 
     # 測試所有支援的風格
-    for style in ["conventional", "emoji", "angular", "custom"]:
-        prompt = manager.get_prompt(style, changed_files, diff_content)
+    for style in CommitStyle:
+        prompt = manager.get_prompt(style.value, changed_files, diff_content)
         assert prompt
         assert "{changed_files}" not in prompt  # 確認變數有被替換
         assert "{diff_content}" not in prompt

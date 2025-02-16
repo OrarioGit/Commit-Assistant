@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 
 from commit_assistant.core.paths import ProjectPaths
 from commit_assistant.core.project_config import ProjectInfo
+from commit_assistant.enums.commit_style import CommitStyle
 from commit_assistant.enums.config_key import ConfigKey
 from commit_assistant.utils.console_utils import console
 
@@ -53,7 +54,7 @@ def load_config(repo_root: str = ".") -> None:
         ConfigKey.ENABLE_COMMIT_ASSISTANT.value: True,
         ConfigKey.USE_MODEL.value: "gemini-2.0-flash-exp",
         ConfigKey.GEMINI_API_KEY.value: None,
-        ConfigKey.COMMIT_STYLE.value: "custom",
+        ConfigKey.COMMIT_STYLE.value: CommitStyle.CONVENTIONAL.value,
     }
 
     # 從 .env 載入，覆蓋默認配置

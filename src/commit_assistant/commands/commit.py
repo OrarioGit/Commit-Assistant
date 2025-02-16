@@ -7,6 +7,7 @@ import questionary
 from google.generativeai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
+from commit_assistant.enums.commit_style import CommitStyle
 from commit_assistant.enums.exit_code import ExitCode
 from commit_assistant.enums.user_choices import UserChoices
 from commit_assistant.utils.config_utils import load_config
@@ -29,7 +30,7 @@ class EnhancedCommitGenerator(BaseGeminiAIGenerator):
         """
 
         # 獲取指定風格的prompt
-        use_style = os.getenv("COMMIT_STYLE", "custom")
+        use_style = os.getenv("COMMIT_STYLE", CommitStyle.CONVENTIONAL.value)
         prompt = self.style_manager.get_prompt(use_style, changed_files, diff_content)
 
         console.print(f"[cyan]生成 commit message 使用 <{use_style}> 風格 [/cyan]")

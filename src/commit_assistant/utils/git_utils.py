@@ -6,6 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List
 
+from commit_assistant.enums.commit_style import CommitStyle
 from commit_assistant.utils.console_utils import console
 
 
@@ -98,7 +99,7 @@ class GitCommandRunner:
 class CommitStyleManager:
     def __init__(self) -> None:
         self.styles = {
-            "conventional": {
+            CommitStyle.CONVENTIONAL.value: {
                 "prompt": """請根據以下的代碼變更生成符合 Conventional Commits 規範的 commit message。
 
                 變更文件:
@@ -129,7 +130,7 @@ class CommitStyleManager:
                 3. 重大更新需包含 BREAKING CHANGE
                 4. scope 需反映模組名稱""",
             },
-            "emoji": {
+            CommitStyle.EMOJI.value: {
                 "prompt": """請根據以下的代碼變更生成使用 emoji 風格的 commit message。
 
                 變更文件:
@@ -168,7 +169,7 @@ class CommitStyleManager:
                 4. 詳細說明條列重要變更
                 5. 相關任務編號選填""",
             },
-            "angular": {
+            CommitStyle.ANGULAR.value: {
                 "prompt": """請根據以下的代碼變更生成符合 Angular Style 的 commit message。
 
                 變更文件:
@@ -205,7 +206,7 @@ class CommitStyleManager:
                 3. 詳細描述改動原因
                 4. 標註重大更新""",
             },
-            "custom": {
+            CommitStyle.CUSTOM.value: {
                 "prompt": """請根據以下的代碼變更生成一個結構化的commit message。
                 變更文件:
                 {changed_files}
