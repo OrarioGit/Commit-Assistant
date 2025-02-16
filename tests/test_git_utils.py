@@ -101,6 +101,46 @@ def test_get_commits_in_date_range(git_runner: GitCommandRunner) -> None:
         assert "test_author" in cmd
 
 
+def test_get_commits_in_date_range_without_author(git_runner: GitCommandRunner) -> None:
+    """測試獲取指定日期範圍內的 commits，不指定作者"""
+    start_dt = datetime(2024, 2, 1)
+    end_dt = datetime(2024, 2, 15)
+    author = None
+    mock_log = "commit log content"
+
+    with patch.object(git_runner, "run_git_command") as mock_run:
+        mock_run.return_value = mock_log
+        log = git_runner.get_commits_in_date_range(start_dt, end_dt, author)
+
+        assert log == mock_log
+        mock_run.assert_called_once()
+        # 驗證命令參數
+        cmd = mock_run.call_args[0][0]
+        assert "--since=2024-02-01 00:00:00" in cmd
+        assert "--until=2024-02-15 00:00:00" in cmd
+        assert "--author" not in cmd
+
+
+def test_get_commits_in_date_range_author_is_empty_str(git_runner: GitCommandRunner) -> None:
+    """測試獲取指定日期範圍內的 commits，作者為空字串"""
+    start_dt = datetime(2024, 2, 1)
+    end_dt = datetime(2024, 2, 15)
+    author = ""
+    mock_log = "commit log content"
+
+    with patch.object(git_runner, "run_git_command") as mock_run:
+        mock_run.return_value = mock_log
+        log = git_runner.get_commits_in_date_range(start_dt, end_dt, author)
+
+        assert log == mock_log
+        mock_run.assert_called_once()
+        # 驗證命令參數
+        cmd = mock_run.call_args[0][0]
+        assert "--since=2024-02-01 00:00:00" in cmd
+        assert "--until=2024-02-15 00:00:00" in cmd
+        assert "--author" not in cmd
+
+
 def test_run_git_command_success(git_runner: GitCommandRunner) -> None:
     """測試成功執行 git 命令"""
     mock_process = Mock()

@@ -135,6 +135,9 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
                 console.print("[yellow]Commit 已取消[/yellow]")
                 return ExitCode.CANCEL.value
             final_message = edited_message
+        else:
+            console.print("[red]選項錯誤，無法使用的選項[/red]")
+            return ExitCode.ERROR.value
 
         # 去除頭尾的 ``` 符號
         final_message = final_message.strip().strip("`")
