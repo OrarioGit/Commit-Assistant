@@ -34,6 +34,7 @@ class ProjectInfo:
         PYPERCLIP = "pyperclip>=1.9.0"
         TOMLI = "tomli>=2.2.1"
         TOMLW = "tomli-w>=1.2.0"
+        YAML = "PyYAML>=6.0.2"
 
     # 專案開發的相依套件
     # 僅有開發時才需要的套件
@@ -41,6 +42,7 @@ class ProjectInfo:
         PRE_COMMIT = "pre-commit>=4.1.0"
         PYTEST = "pytest>=8.3.4"
         PYTEST_COV = "pytest-cov>=6.0.0"
+        YAML_TYPE = "types-PyYAML>=6.0.12.20241230"
 
     # 專案的package路徑
     PACKAGE_PATH = "src"
@@ -49,6 +51,7 @@ class ProjectInfo:
     # 專案的主要指令
     # 這個指令會在安裝時被安裝到系統中，使用者也透過此命令來呼叫專案的功能
     CLI_MAIN_COMMAND = "commit-assistant"
+    SHORT_CLI_MAIN_COMMAND = "cmt-a"  # 縮寫 cmt (commit) + a (assistant)
 
     # 專案入口
     ENTRY_POINTS = "commit_assistant.cli:cli"
@@ -60,6 +63,7 @@ class ProjectInfo:
             "resources/hooks/*",
             "resources/config/*",
             "resources/config/.commit-assistant-config",
+            "resources/styles/**/*",
         ]
     }
 
@@ -68,6 +72,9 @@ class ProjectInfo:
 
     # 設定檔 template 名稱
     CONFIG_TEMPLATE_NAME = ".commit-assistant-config"
+
+    # style template 名稱
+    STYLE_TEMPLATE_NAME = "style_template.yaml"
 
     # 會在使用者專案底下建立我們的專案管理目錄名稱
     REPO_ASSISTANT_DIR = ".commit-assistant"

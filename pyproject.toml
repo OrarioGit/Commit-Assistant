@@ -4,6 +4,7 @@ commit_assistant = [
     "resources/hooks/*",
     "resources/config/*",
     "resources/config/.commit-assistant-config",
+    "resources/styles/**/*",
 ]
 
 [tool.setuptools.packages.find]
@@ -56,6 +57,7 @@ dependencies = [
     "pyperclip>=1.9.0",
     "tomli>=2.2.1",
     "tomli-w>=1.2.0",
+    "PyYAML>=6.0.2",
 ]
 
 [project.optional-dependencies]
@@ -63,6 +65,7 @@ dev = [
     "pre-commit>=4.1.0",
     "pytest>=8.3.4",
     "pytest-cov>=6.0.0",
+    "types-PyYAML>=6.0.12.20241230",
 ]
 
 [project.license]
@@ -70,3 +73,4 @@ text = "Apache-2.0"
 
 [project.scripts]
 commit-assistant = "commit_assistant.cli:cli"
+cmt-a = "commit_assistant.cli:cli"

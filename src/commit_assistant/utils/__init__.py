@@ -2,8 +2,9 @@
 
 from .config_utils import install_config, load_config
 from .console_utils import console
-from .git_utils import CommitStyleManager, GitCommandRunner
+from .git_utils import GitCommandRunner
 from .hook_manager import HookManager
+from .style_utils import CommitStyleManager, StyleImporter
 from .update_utils import UpdateManager
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "install_config",
     "HookManager",
     "UpdateManager",
+    "StyleImporter",
 ]

@@ -53,6 +53,9 @@ def generate_toml_config() -> Dict[str, Any]:
                 "dev": ProjectInfo.get_dev_dependencies(),
             },
             "license": {"text": ProjectInfo.LICENSE},
-            "scripts": {ProjectInfo.CLI_MAIN_COMMAND: ProjectInfo.ENTRY_POINTS},
+            "scripts": {
+                ProjectInfo.CLI_MAIN_COMMAND: ProjectInfo.ENTRY_POINTS,
+                ProjectInfo.SHORT_CLI_MAIN_COMMAND: ProjectInfo.ENTRY_POINTS,
+            },
         },
     }
