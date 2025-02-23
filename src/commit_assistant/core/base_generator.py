@@ -33,7 +33,7 @@ import google.generativeai as genai
 from google.generativeai.types import GenerateContentResponse
 
 from commit_assistant.utils.console_utils import console
-from commit_assistant.utils.git_utils import CommitStyleManager
+from commit_assistant.utils.style_utils import CommitStyleManager
 
 
 class BaseGeminiAIGenerator:
