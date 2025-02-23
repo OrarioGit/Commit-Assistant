@@ -88,7 +88,7 @@ def test_init_style_importer_case_2(temp_style_file: Path, mock_style_dir: Path)
     importer = StyleImporter(temp_style_file, None, False)
     assert importer.is_global is False
     assert importer.style_name == temp_style_file.stem  # 如果沒傳入指定名稱，則使用檔案名稱
-    assert str(f"{ProjectInfo.REPO_ASSISTANT_DIR}\\style") in str(importer.target_dir)
+    assert str(Path(ProjectInfo.REPO_ASSISTANT_DIR) / "style") in str(importer.target_dir)
 
 
 def test_import_invalid_repo(tmp_path: Path, temp_style_file: Path) -> None:
