@@ -29,6 +29,7 @@ class ProjectPaths:
     PYPROJECT_DIR: Final[Path] = ROOT_DIR / "pyproject.toml"
     HOOKS_DIR: Final[Path] = RESOURCES_DIR / "hooks"
     CONFIG_DIR: Final[Path] = RESOURCES_DIR / "config"
+    STYLE_DIR: Final[Path] = RESOURCES_DIR / "styles"
 
     def __class_getitem__(cls, _: None) -> None:
         """避免Class被繼承"""

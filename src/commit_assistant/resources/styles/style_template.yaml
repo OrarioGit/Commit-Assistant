@@ -1,0 +1,65 @@
+# 基本資訊
+name: "template"
+description: "some template description"
+
+# prompt 主體
+# 注意!，一定要包含{changed_files} 和 {diff_content} 才能被正常使用
+prompt: |
+  請根據以下的代碼變更生成符合 Angular Style 的 commit message。
+
+  變更文件:
+  {changed_files}
+  變更內容:
+  {diff_content}
+
+  格式要求：
+  [描述你期望的格式，例如：<type>: <description>]
+
+  type 類型：
+  [列出你的類型定義]
+  - type1: 說明
+  - type2: 說明
+
+  要求：
+  1. [你的要求 1]
+  2. [你的要求 2]
+  3. [你的要求 3]
+
+# 以下區塊為範例，實際並不會使用
+# 若無需要可以自行刪除
+example: |
+  請根據以下的代碼變更生成符合 Angular Style 的 commit message。
+
+  變更文件:
+  {changed_files}
+  變更內容:
+  {diff_content}
+
+  格式要求：
+  <type>(<scope>): <subject>
+  <BLANK LINE>
+  <body>
+  <BLANK LINE>
+  <footer>
+
+  規範：
+  1. subject 不超過 50 字元
+  2. body 每行不超過 72 字元
+  3. type 必須是以下之一：
+  - feat
+  - fix
+  - docs
+  - style
+  - refactor
+  - perf
+  - test
+  - build
+  - ci
+  - chore
+  - revert
+
+  要求：
+  1. 必須使用繁體中文
+  2. scope 需反映模組名稱
+  3. 詳細描述改動原因
+  4. 標註重大更新
