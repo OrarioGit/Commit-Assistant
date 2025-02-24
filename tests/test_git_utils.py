@@ -5,8 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from commit_assistant.enums.commit_style import CommitStyle
-from commit_assistant.utils.git_utils import CommitStyleManager, GitCommandRunner
+from commit_assistant.utils.git_utils import GitCommandRunner
 
 
 @pytest.fixture
@@ -161,27 +160,3 @@ def test_run_git_command_error(git_runner: GitCommandRunner) -> None:
     with patch("subprocess.Popen", return_value=mock_process):
         with pytest.raises(subprocess.CalledProcessError):
             git_runner.run_git_command(["git", "invalid-command"])
-
-
-# CommitStyleManager 測試
-def test_get_prompt_valid_style() -> None:
-    """測試獲取有效的 commit 風格提示"""
-    manager = CommitStyleManager()
-    changed_files = ["file1.py", "file2.py"]
-    diff_content = "test diff"
-
-    # 測試所有支援的風格
-    for style in CommitStyle:
-        prompt = manager.get_prompt(style.value, changed_files, diff_content)
-        assert prompt
-        assert "{changed_files}" not in prompt  # 確認變數有被替換
-        assert "{diff_content}" not in prompt
-        assert "file1.py" in prompt
-        assert "test diff" in prompt
-
-
-def test_get_prompt_invalid_style() -> None:
-    """測試獲取無效的 commit 風格提示"""
-    manager = CommitStyleManager()
-    with pytest.raises(ValueError, match="不支援的風格"):
-        manager.get_prompt("invalid_style", [], "")

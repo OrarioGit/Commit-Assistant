@@ -5,7 +5,7 @@ import pytest
 from google.generativeai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
-from commit_assistant.utils.git_utils import CommitStyleManager
+from commit_assistant.utils.style_utils import CommitStyleManager
 
 
 @pytest.fixture

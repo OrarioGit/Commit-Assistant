@@ -1,8 +1,8 @@
 """Commit Assistant 相關的枚舉類型"""
 
-from .commit_style import CommitStyle
+from .commit_style import CommitStyle, StyleScope
 from .config_key import ConfigKey
 from .exit_code import ExitCode
 from .user_choices import UserChoices
 
-__all__ = ["ExitCode", "UserChoices", "ConfigKey", "CommitStyle"]
+__all__ = ["ExitCode", "UserChoices", "ConfigKey", "CommitStyle", "StyleScope"]
