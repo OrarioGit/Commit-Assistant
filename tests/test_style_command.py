@@ -53,14 +53,14 @@ def test_validate_yaml_invalid() -> None:
         _validate_yaml(None, None, "test.txt")
 
 
-def test_list_command(mock_style_dirs: dict[str, Path]) -> None:
+def test_list_command(tmp_path: Path, mock_style_dirs: dict[str, Path]) -> None:
     """測試列出風格指令"""
     with patch.object(style_module, "ProjectPaths") as mock_paths:
         # Mock 路徑
         mock_paths.STYLE_DIR = mock_style_dirs["system"].parent
 
         runner = CliRunner()
-        result = runner.invoke(list)
+        result = runner.invoke(list, ["--repo-path", str(tmp_path)])
 
         assert result.exit_code == 0
         assert StyleScope.SYSTEM.value in result.output
@@ -69,14 +69,32 @@ def test_list_command(mock_style_dirs: dict[str, Path]) -> None:
         assert "Test Style" in result.output  # 這裡是驗證是否有正確套用到mock_style_dirs中設定的yaml內容
 
 
-def test_list_command_but_no_style_file(tmp_path: Path) -> None:
-    """測試列出風格指令，但所有路徑下都沒有風格檔案"""
+def test_list_command_but_no_style_path_not_exist(tmp_path: Path) -> None:
+    """測試列出風格指令，但所有路徑都不存在"""
     with patch.object(style_module, "ProjectPaths") as mock_paths:
         # Mock 路徑
         mock_paths.STYLE_DIR = Path("not_exist_path")
 
         runner = CliRunner()
         result = runner.invoke(list, ["--repo-path", str(tmp_path)])
+
+        assert result.exit_code == 0
+        assert "尚無可用的 style" in result.output
+
+
+def test_list_command_but_no_style_file_not_exist(mock_style_dirs: dict[str, Path]) -> None:
+    """測試列出風格指令，但所有資料夾下都沒有風格檔案"""
+    with patch.object(style_module, "ProjectPaths") as mock_paths:
+        # Mock 路徑
+        mock_paths.STYLE_DIR = mock_style_dirs["system"].parent
+
+        # 這裡故意刪除所有風格檔案
+        for style_dir in mock_style_dirs.values():
+            for style_file in style_dir.iterdir():
+                style_file.unlink()
+
+        runner = CliRunner()
+        result = runner.invoke(list)
 
         assert result.exit_code == 0
         assert "尚無可用的 style" in result.output
