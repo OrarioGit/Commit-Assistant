@@ -10,9 +10,9 @@ from commit_assistant.core.base_generator import BaseGeminiAIGenerator
 from commit_assistant.enums.commit_style import CommitStyle
 from commit_assistant.enums.exit_code import ExitCode
 from commit_assistant.enums.user_choices import UserChoices
+from commit_assistant.utils.command_runners import GitCommandRunner
 from commit_assistant.utils.config_utils import load_config
 from commit_assistant.utils.console_utils import console, display_ai_message, loading_spinner
-from commit_assistant.utils.git_utils import GitCommandRunner
 
 
 class EnhancedCommitGenerator(BaseGeminiAIGenerator):
@@ -154,7 +154,6 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
         return ExitCode.ERROR.value
 
 
-# @click.pass_context
 @click.command()
 @click.option(
     "--msg-file", "commit_msg_file", type=click.Path(), help="Path to commit message file", required=True
