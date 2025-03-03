@@ -1,11 +1,11 @@
 import subprocess
 from datetime import datetime
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from commit_assistant.utils.git_utils import GitCommandRunner
+from commit_assistant.utils.command_runners import CommandRunner, GitCommandRunner
 
 
 @pytest.fixture
@@ -27,6 +27,83 @@ def test_init_encoding_windows(git_repo: Path) -> None:
     with patch("sys.platform", "win32"):
         runner = GitCommandRunner(str(git_repo))
         assert runner.system_encoding == "utf-8"
+
+
+@patch("subprocess.Popen")
+@patch("os.environ.copy")
+def test_run_command_without_env(mock_environ_copy: MagicMock, mock_popen: MagicMock) -> None:
+    """測試執行命令不帶額外環境變數"""
+    # 設置模擬對象的返回值
+    mock_process = MagicMock()
+    mock_process.returncode = 0
+    mock_process.communicate.return_value = ("command output", "")
+    mock_popen.return_value = mock_process
+
+    mock_env: dict[str, str] = {}
+    mock_environ_copy.return_value = mock_env
+
+    # 建立CommandRunner並執行命令
+    runner = CommandRunner()
+    with patch.object(runner, "system_encoding", "utf-8"):
+        result = runner.run_command(["git", "status"])
+
+    # 驗證環境變數有正確被設置
+    assert mock_env["PYTHONIOENCODING"] == "utf-8"
+    assert mock_env["LANG"] == "zh_TW.utf-8"
+
+    # 驗證subprocess.Popen被正確調用
+    mock_popen.assert_called_once()
+    args, kwargs = mock_popen.call_args
+    assert args[0] == ["git", "status"]
+    assert kwargs["env"] == mock_env
+    assert kwargs["encoding"] == "utf-8"
+    assert result == "command output"
+
+
+@patch("subprocess.Popen")
+@patch("os.environ.copy")
+def test_run_command_with_env(mock_environ_copy: MagicMock, mock_popen: MagicMock) -> None:
+    """測試執行命令帶額外環境變數"""
+    # 設置模擬對象的返回值
+    mock_process = MagicMock()
+    mock_process.returncode = 0
+    mock_process.communicate.return_value = ("command output", "")
+    mock_popen.return_value = mock_process
+
+    base_env = {"PATH": "/usr/bin", "HOME": "/home/user"}
+    mock_environ_copy.return_value = base_env.copy()
+
+    # 創建額外的環境變數
+    custom_env = {"GIT_DIR": "/custom/git", "CUSTOM_VAR": "value"}
+
+    # 創建CommandRunner實例並執行命令
+    runner = CommandRunner()
+    with patch.object(runner, "system_encoding", "utf-8"):
+        result = runner.run_command(["git", "status"], env=custom_env, cwd=Path("/some/path"))
+
+    # 預期被更新後的環境變數
+    expected_env = {
+        "PATH": "/usr/bin",
+        "HOME": "/home/user",
+        "GIT_DIR": "/custom/git",
+        "CUSTOM_VAR": "value",
+        "PYTHONIOENCODING": "utf-8",
+        "LANG": "zh_TW.utf-8",
+    }
+
+    # 驗證my_env.update(env)是否正確執行
+    for key, value in custom_env.items():
+        assert key in mock_environ_copy.return_value
+        assert mock_environ_copy.return_value[key] == value
+
+    # 驗證subprocess.Popen被正確調用
+    mock_popen.assert_called_once()
+    args, kwargs = mock_popen.call_args
+    assert args[0] == ["git", "status"]
+    assert kwargs["env"] == expected_env
+    assert kwargs["encoding"] == "utf-8"
+    assert kwargs["cwd"] == Path("/some/path")
+    assert result == "command output"
 
 
 def test_init_encoding_linux(git_repo: Path) -> None:

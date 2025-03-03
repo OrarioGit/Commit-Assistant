@@ -4,20 +4,68 @@ import subprocess
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import List, Optional
+from typing import Dict, List, Optional
 
 from commit_assistant.utils.console_utils import console
 
 
-class GitCommandRunner:
-    def __init__(self, repo_path: str) -> None:
-        self.repo_path = Path(repo_path).resolve()
-        self.validate_repo()
+class CommandRunner:
+    """通用的command runner 基類"""
 
+    def __init__(self) -> None:
         if sys.platform == "win32":
             self.system_encoding = "utf-8"
         else:
             self.system_encoding = locale.getpreferredencoding()
+
+    def run_command(
+        self, cmd: List[str], cwd: Optional[Path] = None, env: Optional[Dict[str, str]] = None
+    ) -> str:
+        """執行命令並處理編碼
+
+        Args:
+            cmd (List[str]): 要執行的命令
+            cwd (Optional[Path]): 工作目錄
+            env (Optional[Dict[str, str]]): 環境變數
+
+        Returns:
+            str: 命令執行結果
+        """
+        try:
+            my_env = os.environ.copy()
+            if env:
+                my_env.update(env)
+
+            my_env["PYTHONIOENCODING"] = self.system_encoding
+            my_env["LANG"] = f"zh_TW.{self.system_encoding}"
+
+            process = subprocess.Popen(
+                cmd,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=cwd,
+                env=my_env,
+                encoding=self.system_encoding,
+            )
+
+            stdout, stderr = process.communicate()
+
+            if process.returncode != 0:
+                console.print(f"[red]命令執行失敗: {stderr}[/red]")
+                raise subprocess.CalledProcessError(process.returncode, cmd, stdout, stderr)
+
+            return stdout
+        except Exception as e:
+            console.print(f"[red]執行命令時出錯: {e}[/red]")
+            raise
+
+
+class GitCommandRunner(CommandRunner):
+    def __init__(self, repo_path: str) -> None:
+        super().__init__()
+
+        self.repo_path = Path(repo_path).resolve()
+        self.validate_repo()
 
     def validate_repo(self) -> None:
         """驗證是否為有效的git倉庫"""
@@ -69,27 +117,4 @@ class GitCommandRunner:
         Returns:
             str: 命令執行結果
         """
-        try:
-            my_env = os.environ.copy()
-            my_env["PYTHONIOENCODING"] = self.system_encoding
-            my_env["LANG"] = f"zh_TW.{self.system_encoding}"
-
-            process = subprocess.Popen(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                cwd=self.repo_path,
-                env=my_env,
-                encoding=self.system_encoding,
-            )
-
-            stdout, stderr = process.communicate()
-
-            if process.returncode != 0:
-                console.print(f"[red]Git命令執行失敗: {stderr}[/red]")
-                raise subprocess.CalledProcessError(process.returncode, cmd, stdout, stderr)
-
-            return stdout
-        except Exception as e:
-            console.print(f"[red]執行git命令時出錯: {e}[/red]")
-            raise
+        return self.run_command(cmd, cwd=self.repo_path)
