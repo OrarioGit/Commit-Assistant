@@ -6,5 +6,6 @@ from .install import install
 from .style import style
 from .summary import summary
 from .update import update
+from .upgrade import upgrade
 
-__all__ = ["commit", "install", "config", "summary", "update", "style"]
+__all__ = ["commit", "install", "config", "summary", "update", "style", "upgrade"]

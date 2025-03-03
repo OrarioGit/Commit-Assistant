@@ -19,7 +19,7 @@ from typing import List
 
 class ProjectInfo:
     NAME: str = "commit-assistant"
-    VERSION: str = "0.1.6"
+    VERSION: str = "0.1.7"
     DESCRIPTION: str = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
     PYTHON_REQUIRES: str = ">=3.9"
     LICENSE: str = "Apache-2.0"
@@ -35,6 +35,8 @@ class ProjectInfo:
         TOMLI = "tomli>=2.2.1"
         TOMLW = "tomli-w>=1.2.0"
         YAML = "PyYAML>=6.0.2"
+        REQUEST = "requests>=2.32.3"
+        PACKAGING = "packaging>=24.2"
 
     # 專案開發的相依套件
     # 僅有開發時才需要的套件
@@ -43,6 +45,14 @@ class ProjectInfo:
         PYTEST = "pytest>=8.3.4"
         PYTEST_COV = "pytest-cov>=6.0.0"
         YAML_TYPE = "types-PyYAML>=6.0.12.20241230"
+        REQUEST_TYPE = "types-requests>=2.32.0.20241016"
+        FREEZEGUN = "freezegun>=1.5.1"
+
+    # 專案的GitHub Repo URL
+    GITHUB_REPO_URL = "git+https://github.com/OrarioGit/Commit-Assistant.git"
+
+    # 專案GitHub的Release Tag URL
+    RELEASE_TAG_URL = "https://api.github.com/repos/OrarioGit/Commit-Assistant/tags"
 
     # 專案的package路徑
     PACKAGE_PATH = "src"
@@ -81,6 +91,9 @@ class ProjectInfo:
 
     # 用來記錄比如使用者安裝的版本號、repo路徑等資訊
     INSTALLATIONS_FILE = "installations.toml"
+
+    # 用來記錄上次檢查更新的時間檔名
+    UPGRADE_CHECK_FILE = "latest_upgrade_check"
 
     # unit test相關
     TEST_DIRS = ["commit-assistant"]
