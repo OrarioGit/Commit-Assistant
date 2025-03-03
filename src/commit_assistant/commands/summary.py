@@ -8,9 +8,9 @@ from google.generativeai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
 from commit_assistant.enums.exit_code import ExitCode
+from commit_assistant.utils.command_runners import GitCommandRunner
 from commit_assistant.utils.config_utils import load_config
 from commit_assistant.utils.console_utils import console, display_ai_message, loading_spinner
-from commit_assistant.utils.git_utils import GitCommandRunner
 
 
 class CommitSummaryGenerator(BaseGeminiAIGenerator):
