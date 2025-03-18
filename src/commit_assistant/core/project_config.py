@@ -19,7 +19,7 @@ from typing import List
 
 class ProjectInfo:
     NAME: str = "commit-assistant"
-    VERSION: str = "0.1.7"
+    VERSION: str = "0.1.8"
     DESCRIPTION: str = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
     PYTHON_REQUIRES: str = ">=3.9"
     LICENSE: str = "Apache-2.0"
