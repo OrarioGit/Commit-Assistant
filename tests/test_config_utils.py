@@ -120,7 +120,7 @@ def test_install_config(tmp_path: Path, mock_project_paths: Path) -> None:
     install_config(str(tmp_path))
 
     # 確認設定檔被複製
-    config_file = tmp_path / ProjectInfo.CONFIG_TEMPLATE_NAME
+    config_file = tmp_path / ProjectInfo.REPO_ASSISTANT_DIR / ProjectInfo.CONFIG_TEMPLATE_NAME
     assert config_file.exists()
     assert "COMMIT_STYLE" in config_file.read_text()
 
@@ -138,8 +138,12 @@ def test_install_config_copy_error(tmp_path: Path, capsys: pytest.CaptureFixture
 
 def test_install_config_existing_file(tmp_path: Path) -> None:
     """測試安裝設定檔到已存在檔案的情況"""
+    # 建立模擬的專案資料夾
+    repo_config_folder = tmp_path / ProjectInfo.REPO_ASSISTANT_DIR
+    repo_config_folder.mkdir()
+
     # 建立已存在的設定檔
-    config_file = tmp_path / ProjectInfo.CONFIG_TEMPLATE_NAME
+    config_file = repo_config_folder / ProjectInfo.CONFIG_TEMPLATE_NAME
     original_content = "COMMIT_STYLE=custom"
     config_file.write_text(original_content)
 
