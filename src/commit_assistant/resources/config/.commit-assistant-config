@@ -5,4 +5,4 @@ ENABLE_COMMIT_ASSISTANT=true
 USE_MODEL=gemini-2.0-flash-exp
 
 # commit style 1. conventional 2. emoji 3. angular 4. custom
-COMMIT_STYLE=custom
+COMMIT_STYLE=conventional

@@ -81,7 +81,12 @@ def install_config(repo_root: str) -> None:
     """
     安裝配置文件到專案根目錄
     """
-    config_file = Path(repo_root) / ProjectInfo.CONFIG_TEMPLATE_NAME
+    save_config_path = Path(repo_root) / ProjectInfo.REPO_ASSISTANT_DIR
+
+    # 確保專案配置文件夾存在
+    save_config_path.mkdir(exist_ok=True)
+
+    config_file = save_config_path / ProjectInfo.CONFIG_TEMPLATE_NAME
 
     if config_file.exists():
         return
