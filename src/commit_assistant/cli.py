@@ -5,11 +5,15 @@ from commit_assistant.core.project_config import ProjectInfo
 from commit_assistant.utils.upgrade_checker import UpgradeChecker
 
 
-@click.group()
+@click.group(invoke_without_command=True)
 @click.version_option(version=ProjectInfo.VERSION, prog_name=ProjectInfo.NAME)
 @click.pass_context
 def cli(ctx: click.Context) -> None:
     """Commit Assistant CLI 工具"""
+    if ctx.invoked_subcommand is None:
+        click.echo(ctx.get_help())
+        return
+
     # 取得當前執行的命令
     cmd_name = ctx.invoked_subcommand
 
