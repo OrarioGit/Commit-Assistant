@@ -62,7 +62,7 @@ def test_validate_content_missing_required_field() -> None:
     }
     with pytest.raises(ValueError) as exc_info:
         StyleValidator.validate_content(content)
-    assert "缺少必要欄位: prompt" in str(exc_info.value)
+    assert "缺少必要欄位：prompt" in str(exc_info.value)
 
 
 def test_validate_content_missing_variables() -> None:
@@ -71,12 +71,12 @@ def test_validate_content_missing_variables() -> None:
     content = {"prompt": "Changed files: {changed_files}"}
     with pytest.raises(ValueError) as exc_info:
         StyleValidator.validate_content(content)
-    assert "prompt 中缺少必要變數: diff_content" in str(exc_info.value)
+    assert "prompt 中缺少必要變數：diff_content" in str(exc_info.value)
 
 
 # StyleImporter 測試
 def test_init_style_importer(temp_style_file: Path, mock_style_dir: Path) -> None:
-    """測試初始化StyleImporter看是否正確"""
+    """測試初始化 StyleImporter 看是否正確"""
     importer = StyleImporter(temp_style_file, "test_style", True)
     assert importer.is_global
     assert importer.style_name == "test_style"
@@ -84,7 +84,7 @@ def test_init_style_importer(temp_style_file: Path, mock_style_dir: Path) -> Non
 
 
 def test_init_style_importer_case_2(temp_style_file: Path, mock_style_dir: Path) -> None:
-    """測試初始化StyleImporter看是否正確"""
+    """測試初始化 StyleImporter 看是否正確"""
     importer = StyleImporter(temp_style_file, None, False)
     assert importer.is_global is False
     assert importer.style_name == temp_style_file.stem  # 如果沒傳入指定名稱，則使用檔案名稱
@@ -92,7 +92,7 @@ def test_init_style_importer_case_2(temp_style_file: Path, mock_style_dir: Path)
 
 
 def test_import_invalid_repo(tmp_path: Path, temp_style_file: Path) -> None:
-    """測試在無效的 Git repo中匯入"""
+    """測試在無效的 Git repo 中匯入"""
     os.chdir(tmp_path)  # 切換到非 Git 儲存庫目錄
 
     with pytest.raises(ValueError) as exc_info:
@@ -113,7 +113,7 @@ def test_start_import_style(
     # 檢查提示訊息
     console_out = capsys.readouterr().out
     # 確認使用者有拿到正確的提示
-    assert f"已匯入為[{StyleScope.GLOBAL.value}]模板" in console_out
+    assert f"已匯入為 [{StyleScope.GLOBAL.value}] 模板" in console_out
     assert "風格名稱:test_style" in console_out
 
 
@@ -132,7 +132,7 @@ def test_start_import_and_has_duplicate_style(
     # 檢查提示訊息
     console_out = capsys.readouterr().out
     # 確認使用者有拿到正確的提示
-    assert f"已匯入為[{StyleScope.GLOBAL.value}]模板" in console_out
+    assert f"已匯入為 [{StyleScope.GLOBAL.value}] 模板" in console_out
     assert "風格名稱:test_style" in console_out
 
     # 更改檔案內容
@@ -148,7 +148,7 @@ def test_start_import_and_has_duplicate_style(
     importer = StyleImporter(temp_style_file, "test_style", True)
 
     with patch("questionary.confirm") as mock_confirm:
-        # 模擬使用者選擇Y
+        # 模擬使用者選擇 Y
         mock_confirm.return_value.ask.return_value = True
 
         # 檢查是否有覆寫
@@ -174,7 +174,7 @@ def test_start_import_and_has_duplicate_style_cancel_case(
     # 檢查提示訊息
     console_out = capsys.readouterr().out
     # 確認使用者有拿到正確的提示
-    assert f"已匯入為[{StyleScope.GLOBAL.value}]模板" in console_out
+    assert f"已匯入為 [{StyleScope.GLOBAL.value}] 模板" in console_out
     assert "風格名稱:test_style" in console_out
 
     # 更改檔案內容
@@ -196,7 +196,7 @@ def test_start_import_and_has_duplicate_style_cancel_case(
     assert new_importer.target_file.exists(), "目標檔案應該存在才能測試取消覆寫的情況"
 
     with patch("questionary.confirm") as mock_confirm:
-        # 模擬使用者選擇N
+        # 模擬使用者選擇 N
         mock_confirm.return_value.ask.return_value = False
 
         importer.start_import()
@@ -211,12 +211,12 @@ def test_get_style_path_project(temp_git_repo: Path) -> None:
     """測試獲取專案風格路徑"""
     manager = CommitStyleManager()
 
-    # 將測試用的style_dir 指定到manager底下做測試
+    # 將測試用的 style_dir 指定到 manager 底下做測試
     style_dir = temp_git_repo / ProjectInfo.REPO_ASSISTANT_DIR / "style"
     style_dir.mkdir(parents=True)
     manager.project_styles_dir = style_dir
 
-    # 建立一個假的yaml風格檔
+    # 建立一個假的 yaml 風格檔
     style_file = style_dir / "test_style.yaml"
     style_file.write_text("prompt: test")
 
@@ -229,12 +229,12 @@ def test_get_style_path_global(temp_git_repo: Path) -> None:
     """測試獲取全域的風格路徑"""
     manager = CommitStyleManager()
 
-    # 將測試用的style_dir 指定到manager底下做測試
+    # 將測試用的 style_dir 指定到 manager 底下做測試
     style_dir = temp_git_repo / "global"
     style_dir.mkdir(parents=True)
     manager.global_styles_dir = style_dir
 
-    # 建立一個假的yaml風格檔
+    # 建立一個假的 yaml 風格檔
     style_file = style_dir / "test_style.yaml"
     style_file.write_text("prompt: test")
 
@@ -247,12 +247,12 @@ def test_get_style_path_system(temp_git_repo: Path) -> None:
     """測試獲取系統內建的風格路徑"""
     manager = CommitStyleManager()
 
-    # 將測試用的style_dir 指定到manager底下做測試
+    # 將測試用的 style_dir 指定到 manager 底下做測試
     style_dir = temp_git_repo / "system"
     style_dir.mkdir(parents=True)
     manager.system_styles_dir = style_dir
 
-    # 建立一個假的yaml風格檔
+    # 建立一個假的 yaml 風格檔
     style_file = style_dir / "test_style.yaml"
     style_file.write_text("prompt: test")
 
@@ -318,7 +318,7 @@ def test_set_project_commit_style_update_existing(tmp_path: Path) -> None:
     new_content = config_file.read_text(encoding="utf-8")
     assert f"{ConfigKey.COMMIT_STYLE.value}=new_style_name" in new_content
     assert "# 這是註解" in new_content
-    assert "SOME_OTHER_KEY=value" in new_content  # 其他的key值應該要被保留且不能被更改
+    assert "SOME_OTHER_KEY=value" in new_content  # 其他的 key 值應該要被保留且不能被更改
     assert "old_style" not in new_content  # 覆蓋舊有的數值
 
 
@@ -370,7 +370,7 @@ def test_set_project_commit_style_global_warning(tmp_path: Path, capsys: pytest.
 
     # 驗證警告訊息
     captured = capsys.readouterr()
-    assert f"[{StyleScope.GLOBAL.value}]風格模板" in captured.out
+    assert f"[{StyleScope.GLOBAL.value}] 風格模板" in captured.out
     assert "其他專案成員可能無法使用" in captured.out
     assert "commit-assistant style add" in captured.out
     assert f"[{StyleScope.PROJECT.value}]" in captured.out

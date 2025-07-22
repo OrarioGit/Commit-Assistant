@@ -9,7 +9,7 @@
     python -m commit_assistant.script.build_pyproject
 
 注意：
-- 使用前請先執行 pip install -e . 將專案安裝到本地環境(建議使用虛擬環境)
+- 使用前請先執行 pip install -e . 將專案安裝到本地環境 (建議使用虛擬環境)
 - 執行此模組會覆寫現有的 pyproject.toml
 - 建議在修改版本號或設定後執行
 """

@@ -13,7 +13,7 @@ def cli(ctx: click.Context) -> None:
     # 取得當前執行的命令
     cmd_name = ctx.invoked_subcommand
 
-    # 當upgrade以外的命令執行時，檢查更新
+    # 當 upgrade 以外的命令執行時，檢查更新
     if cmd_name != "upgrade":
         upgrade_checker = UpgradeChecker()
         upgrade_checker.run_version_check()

@@ -14,7 +14,7 @@ from commit_assistant.utils.console_utils import console
 class StyleValidator:
     """用於驗證 Style 內容的驗證器"""
 
-    # 定義出style yaml 必填欄位
+    # 定義出 style yaml 必填欄位
     REQUIRED_FIELDS = ["prompt"]
 
     # 在內容中有那些變數需要被替換
@@ -34,19 +34,19 @@ class StyleValidator:
         missing_fields = [field for field in cls.REQUIRED_FIELDS if field not in content]
         if missing_fields:
             raise ValueError(
-                f"缺少必要欄位: {', '.join(missing_fields)}，請檢查風格檔.yaml中是否包含這些欄位"
+                f"缺少必要欄位：{', '.join(missing_fields)}，請檢查風格檔.yaml 中是否包含這些欄位"
             )
 
         # 2. prompt 中的替換變數必須存在
         for var in cls.REQUIRED_VARIABLES:
             if var not in content["prompt"]:
                 raise ValueError(
-                    f"prompt 中缺少必要變數: {var}，請檢查風格檔.yaml的prompt中是否有包含這些變數"
+                    f"prompt 中缺少必要變數：{var}，請檢查風格檔.yaml 的 prompt 中是否有包含這些變數"
                 )
 
 
 class StyleImporter:
-    """用於管理Style的匯入"""
+    """用於管理 Style 的匯入"""
 
     def __init__(self, file_path: Path, style_name: Optional[str], is_global: bool) -> None:
         self.source_path = file_path.absolute()
@@ -57,19 +57,19 @@ class StyleImporter:
         self.target_file = self.target_dir / f"{self.style_name}.yaml"
 
     def _get_target_directory(self) -> Path:
-        """取得要匯入的yaml目標路徑"""
+        """取得要匯入的 yaml 目標路徑"""
         # 全域，直接放在本套件目錄下
         if self.is_global:
             return ProjectPaths.STYLE_DIR / "global"
 
-        # 專案，放在對應專案的style目錄下
+        # 專案，放在對應專案的 style 目錄下
         current_dir = Path(".").absolute()
         if not self._validate_repo(current_dir):
             raise ValueError("當前目錄不是有效的 git 倉庫")
         return current_dir / ProjectInfo.REPO_ASSISTANT_DIR / "style"
 
     def _validate_repo(self, current_dir: Path) -> bool:
-        """驗證是否為有效的git倉庫"""
+        """驗證是否為有效的 git 倉庫"""
         git_dir = current_dir / ".git"
         return git_dir.exists()
 
@@ -92,7 +92,7 @@ class StyleImporter:
 
         if not self._handle_existing_file():
             # 如果使用者選擇不複寫，則取消匯入
-            console.print("[yellow]已取消匯入[/yellow]")
+            console.print("[yellow] 已取消匯入 [/yellow]")
             return
 
         # 開始匯入
@@ -125,7 +125,7 @@ class CommitStyleManager:
             style_name (str): 風格名稱
 
         Returns:
-            tuple[Path, bool]: 風格檔案路徑(包含yaml檔案), 是否使用全域風格
+            tuple[Path, bool]: 風格檔案路徑 (包含 yaml 檔案), 是否使用全域風格
 
         Raises:
             ValueError: 當找不到指定風格時拋出錯誤
@@ -151,8 +151,8 @@ class CommitStyleManager:
         raise ValueError(f"找不到風格模板：{style_name}")
 
     def set_project_commit_style(self, style_name: str) -> None:
-        """設定專案要使用的commit style"""
-        # 檢查指定的style是否存在
+        """設定專案要使用的 commit style"""
+        # 檢查指定的 style 是否存在
         try:
             _, use_global_style = self.get_style_path(style_name)
         except ValueError:
@@ -161,7 +161,7 @@ class CommitStyleManager:
         # 更新設定檔
         if not self.project_config_file.exists():
             raise ValueError(
-                f"找不到[cyan]{ProjectInfo.CONFIG_TEMPLATE_NAME}[/cyan]設定檔，請先執行 [cyan]commit-assistant install[/cyan] 或 [cyan]commit-assistant update[/cyan]"
+                f"找不到 [cyan]{ProjectInfo.CONFIG_TEMPLATE_NAME}[/cyan] 設定檔，請先執行 [cyan]commit-assistant install[/cyan] 或 [cyan]commit-assistant update[/cyan]"
             )
 
         # 讀取現有設定
@@ -193,10 +193,10 @@ class CommitStyleManager:
         # 這裡提示使用者注意
         if use_global_style:
             console.print(
-                f"[yellow]注意：當前使用本機的[{StyleScope.GLOBAL.value}]風格模板，其他專案成員可能無法使用[/yellow]"
+                f"[yellow] 注意：當前使用本機的 [{StyleScope.GLOBAL.value}] 風格模板，其他專案成員可能無法使用 [/yellow]"
             )
             console.print(
-                f"建議使用 [cyan]commit-assistant style add {style_name}[/cyan]，將其加入到[{StyleScope.PROJECT.value}]中\n"
+                f"建議使用 [cyan]commit-assistant style add {style_name}[/cyan]，將其加入到 [{StyleScope.PROJECT.value}] 中\n"
             )
 
     def get_prompt(self, style: str, changed_files: List[str], diff_content: str) -> str:
@@ -214,7 +214,7 @@ class CommitStyleManager:
         # 先取出要使用的風格檔案路徑
         style_path, _ = self.get_style_path(style)
 
-        # 讀取yaml prompt內容
+        # 讀取 yaml prompt 內容
         with open(style_path, "r", encoding="utf-8") as f:
             content = yaml.safe_load(f)
 

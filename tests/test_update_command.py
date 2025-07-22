@@ -8,8 +8,8 @@ from click.testing import CliRunner
 
 from commit_assistant.commands.update import update
 
-# 取得最原始的update Module
-# 而不是被Click 裝飾器包裹後的Module(會失去原本的屬性，導致無法mock)
+# 取得最原始的 update Module
+# 而不是被 Click 裝飾器包裹後的 Module(會失去原本的屬性，導致無法 mock)
 update_module = sys.modules["commit_assistant.commands.update"]
 
 
@@ -62,7 +62,7 @@ def test_update_command_single_update_error(
         result = runner.invoke(update, ["--repo-path", str(tmp_path)])
 
     assert result.exit_code == 1
-    assert "更新失敗，錯誤: " in result.output
+    assert "更新失敗，錯誤：" in result.output
     assert "Test Error" in result.output
 
 
@@ -75,7 +75,7 @@ def test_update_command_all_update(
 
     assert result.exit_code == 0
     assert "開始更新所有專案底下的相關檔案..." in result.output
-    assert "找到 2 個已安裝的專案" in result.output  # 2 個是由mock_installation_manager 中定義
+    assert "找到 2 個已安裝的專案" in result.output  # 2 個是由 mock_installation_manager 中定義
     assert "所有專案底下的相關檔案更新完成!!" in result.output
     # 檢查 update 方法是否被呼叫兩次
     assert mock_update_manager.update.call_count == 2

@@ -188,7 +188,7 @@ def test_summary_command_summary_error(
     """測試生成摘要時出現錯誤"""
     runner = CliRunner()
 
-    # 模擬summary生成失敗，返回None
+    # 模擬 summary 生成失敗，返回 None
     mock_summary_generator.generate_commit_summary.return_value = None
 
     with patch.object(summary_module, "pyperclip") as mock_pyperclip:
@@ -216,4 +216,4 @@ def test_summary_command_pyperclip_error(
 
         # 這裡失敗會改為直接顯示摘要內容，不會返回錯誤
         assert result.exit_code == ExitCode.SUCCESS.value
-        assert "無法複製摘要到剪貼簿, 請確認操作環境是否支援剪貼簿操作" in result.output
+        assert "無法複製摘要到剪貼簿，請確認操作環境是否支援剪貼簿操作" in result.output

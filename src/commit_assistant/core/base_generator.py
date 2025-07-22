@@ -37,13 +37,13 @@ from commit_assistant.utils.style_utils import CommitStyleManager
 
 
 class BaseGeminiAIGenerator:
-    """建立一個Gemini Ai Generator的基類"""
+    """建立一個 Gemini Ai Generator 的基類"""
 
     def __init__(self) -> None:
         api_key = os.getenv("GEMINI_API_KEY")
         if api_key is None:
-            console.print("[yellow]檢測到尚未設定 Gemini api key [/yellow]")
-            raise ValueError("請先執行commit-assistant config setup設定API金鑰")
+            console.print("[yellow] 檢測到尚未設定 Gemini api key [/yellow]")
+            raise ValueError("請先執行 commit-assistant config setup 設定 API 金鑰")
 
         genai.configure(api_key=api_key)
         self.model = genai.GenerativeModel(os.getenv("GENERATIVE_MODEL", "gemini-2.0-flash-exp"))
@@ -54,6 +54,6 @@ class BaseGeminiAIGenerator:
             response = self.model.generate_content(prompt)
             return response
         except Exception as e:
-            console.print("[red]生成內容時發生錯誤: [/red]")
+            console.print("[red] 生成內容時發生錯誤：[/red]")
             console.print(f"[red]{e}[/red]")
             return None

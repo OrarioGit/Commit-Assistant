@@ -167,4 +167,4 @@ def test_load_config_file_error(tmp_path: Path, capsys: pytest.CaptureFixture) -
 
         # 驗證錯誤訊息
         console_output = capsys.readouterr().out
-        assert "載入commit-assistant config 失敗" in console_output
+        assert "載入 commit-assistant config 失敗" in console_output

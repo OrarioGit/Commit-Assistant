@@ -15,7 +15,7 @@ class UpdateManager:
         self.hook_path = repo_path / ".git" / "hooks" / ProjectInfo.HOOK_TEMPLATE_NAME
         self.config_path = repo_path / ProjectInfo.REPO_ASSISTANT_DIR / ProjectInfo.CONFIG_TEMPLATE_NAME
 
-        # 取出我們要更新的內容(模板、設定檔)
+        # 取出我們要更新的內容 (模板、設定檔)
         self.hook_template_path = ProjectPaths.HOOKS_DIR / ProjectInfo.HOOK_TEMPLATE_NAME
         self.config_template_path = ProjectPaths.CONFIG_DIR / ProjectInfo.CONFIG_TEMPLATE_NAME
         self.installations_path = ProjectPaths.RESOURCES_DIR / ProjectInfo.INSTALLATIONS_FILE
@@ -23,7 +23,7 @@ class UpdateManager:
     def _update_config(self) -> None:
         """更新設定檔，保留使用者自定義的設定值並與新模板合併"""
 
-        console.print("[yellow]開始更新設定檔...[/yellow]")
+        console.print("[yellow] 開始更新設定檔...[/yellow]")
 
         # 讀取當前設定
         current_config = self._read_current_config()
@@ -35,18 +35,18 @@ class UpdateManager:
         # 寫入新設定
         self._write_merged_config(merged_config)
 
-        console.print("[green]設定檔更新完成!![/green]\n")
+        console.print("[green] 設定檔更新完成!![/green]\n")
 
     def _read_template_config(self) -> Dict[str, str]:
-        """讀取專案內config模板內容"""
+        """讀取專案內 config 模板內容"""
         content = self.config_template_path.read_text(encoding="utf-8")
         return self._parse_config_content(content)
 
     def _parse_config_content(self, content: str) -> Dict[str, str]:
-        """解析config內容為dictionary格式"""
+        """解析 config 內容為 dictionary 格式"""
         config = {}
         for line in content.splitlines():
-            # 去除tab，避免使用者習慣性的使用tab排版
+            # 去除 tab，避免使用者習慣性的使用 tab 排版
             line = line.replace("\t", " ")
 
             # 去除前後空白
@@ -59,7 +59,7 @@ class UpdateManager:
         return config
 
     def _merge_configs(self, current_config: Dict[str, str], new_config: Dict[str, str]) -> Dict[str, str]:
-        """合併當前設定和新設定，並保留user自定義的值"""
+        """合併當前設定和新設定，並保留 user 自定義的值"""
         merged_config = new_config.copy()
         for key, value in current_config.items():
             if key in new_config:
@@ -78,15 +78,15 @@ class UpdateManager:
                 key = line.split("=", 1)[0].strip()
                 result_lines.append(f"{key}={merged_config[key]}")
 
-        # 如果config資料夾缺失，則先建立
+        # 如果 config 資料夾缺失，則先建立
         if not self.config_path.parent.exists():
-            console.print("[yellow]發現設定檔資料夾不存在，正在建立...[/yellow]")
+            console.print("[yellow] 發現設定檔資料夾不存在，正在建立...[/yellow]")
             self.config_path.parent.mkdir(parents=True)
 
         self.config_path.write_text("\n".join(result_lines), encoding="utf-8")
 
     def _read_current_config(self) -> Dict[str, str]:
-        """讀取當前的config檔內容"""
+        """讀取當前的 config 檔內容"""
         if not self.config_path.exists():
             return {}
 
@@ -94,8 +94,8 @@ class UpdateManager:
 
     def update(self) -> None:
         """更新 hook 和 config 檔案"""
-        # 判斷是否有舊版本的config檔案
-        # 在過往版本中，config檔案是放在專案根目錄下的
+        # 判斷是否有舊版本的 config 檔案
+        # 在過往版本中，config 檔案是放在專案根目錄下的
         # 如果有的話，我們要期先移動到新的位置，再進行後續更新處理
         old_version_config_path = self.repo_path / ProjectInfo.CONFIG_TEMPLATE_NAME
         if old_version_config_path.exists():
@@ -104,17 +104,17 @@ class UpdateManager:
             new_config_path.mkdir(exist_ok=True)
 
             console.print(
-                f"[yellow]偵測到舊版本的設定檔，正在移動到新位置{self.repo_path}/{new_config_path}[/yellow]"
+                f"[yellow] 偵測到舊版本的設定檔，正在移動到新位置{self.repo_path}/{new_config_path}[/yellow]"
             )
 
-            # 移動舊的config檔案
+            # 移動舊的 config 檔案
             shutil.move(old_version_config_path, new_config_path / ProjectInfo.CONFIG_TEMPLATE_NAME)
-            console.print("[green]設定檔移動完成!![/green]\n")
+            console.print("[green] 設定檔移動完成!![/green]\n")
 
-        # 更新config
+        # 更新 config
         self._update_config()
 
-        # 更新hook
+        # 更新 hook
         hook_manager = HookManager(self.repo_path)
         new_hook_content = self.hook_template_path.read_text(encoding="utf-8")
         hook_manager.update_hook(new_hook_content)

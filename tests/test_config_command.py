@@ -20,7 +20,7 @@ def mock_env_file(tmp_path: Path) -> Path:
 @pytest.fixture
 def mock_package_path(tmp_path: Path) -> Generator[Path, None, None]:
     """模擬套件路徑"""
-    # 攔截 ProjectPaths.PACKAGE_DIR的屬性調用，使用臨時路徑做替代
+    # 攔截 ProjectPaths.PACKAGE_DIR 的屬性調用，使用臨時路徑做替代
     with patch("commit_assistant.core.paths.ProjectPaths.PACKAGE_DIR", tmp_path):
         yield tmp_path
 
@@ -49,7 +49,7 @@ def test_setup_command_permission_error(mock_package_path: Path) -> None:
     """測試 setup 命令失敗，權限問題無法寫入 .env 檔案"""
     runner = CliRunner()
 
-    # 模擬touch .env時，權限問題
+    # 模擬 touch .env 時，權限問題
     with patch.object(Path, "touch", side_effect=PermissionError("Permission denied")):
         result = runner.invoke(setup, input="test-api-key\n")
 
@@ -59,7 +59,7 @@ def test_setup_command_permission_error(mock_package_path: Path) -> None:
 
 
 def test_setup_command_write_error(mock_package_path: Path) -> None:
-    """測試 setup 命令失敗， 寫入過程發生錯誤時的處理"""
+    """測試 setup 命令失敗，寫入過程發生錯誤時的處理"""
     runner: CliRunner = CliRunner()
 
     # 先創建檔案避免觸發 touch()
@@ -87,7 +87,7 @@ def test_show_command() -> None:
         result = runner.invoke(show)
 
         assert result.exit_code == 0
-        # 檢查是否正確地將 API key隱藏部分內容
+        # 檢查是否正確地將 API key 隱藏部分內容
         assert "test-********12345" in result.output
 
 

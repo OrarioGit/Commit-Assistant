@@ -73,7 +73,7 @@ def test_upgrade_with_subcommand(mock_upgrade: MagicMock) -> None:
     runner = CliRunner()
     result = runner.invoke(upgrade, ["check"])
 
-    # 這裡有帶上子命令，所以不應該執行_upgrade函數
+    # 這裡有帶上子命令，所以不應該執行_upgrade 函數
     mock_upgrade.assert_not_called()
     assert result.exit_code == 0
 
@@ -146,7 +146,7 @@ def test_upgrade_function_successful_update(
     mock_runner = MagicMock()
     mock_runner_class.return_value = mock_runner
 
-    # 測試--yes參數 = true的情況
+    # 測試--yes 參數 = true 的情況
     with patch("commit_assistant.utils.console_utils.console.print") as mock_print:
         _upgrade(True)
 
@@ -176,7 +176,7 @@ def test_upgrade_function_update_error(
     mock_runner.run_command.side_effect = Exception("Installation failed")
     mock_runner_class.return_value = mock_runner
 
-    # 測試--yes參數 = true的情況
+    # 測試--yes 參數 = true 的情況
     with patch("commit_assistant.utils.console_utils.console.print") as mock_print:
         _upgrade(True)
 

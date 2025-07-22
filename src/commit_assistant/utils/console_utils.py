@@ -36,7 +36,7 @@ def loading_spinner(description: str = "處理中") -> Iterator[None]:
 
 
 def display_ai_message(ai_message: str) -> None:
-    """使用多層次panel來顯示 AI 生成的 commit message"""
+    """使用多層次 panel 來顯示 AI 生成的 commit message"""
     # 創建標題
     title = Text("💡 AI Commit Suggestion", style="bold cyan")
 

@@ -33,16 +33,16 @@ def _print_all_styles(dir: Path) -> None:
                 style_data = yaml.safe_load(f)
                 description = style_data.get("description", "無描述")
 
-                # 使用 rich Text 來避免英文的描述文字無法被rich正確解析
+                # 使用 rich Text 來避免英文的描述文字無法被 rich 正確解析
                 text = Text()
                 text.append(f"  - {style_name}  ")
                 text.append(f"[{description}]", style="blue")
                 console.print(text)
         except Exception:
-            console.print(f"  - {yaml_file.stem} [red]讀取失敗[/red]")
+            console.print(f"  - {yaml_file.stem} [red] 讀取失敗 [/red]")
 
     if not found_file:
-        console.print("  - [red]尚無可用的 style[/red]")
+        console.print("  - [red] 尚無可用的 style[/red]")
 
 
 @click.group()
@@ -59,7 +59,7 @@ def style() -> None:
 )
 def list(repo_path: str) -> None:
     """列出所有可用的風格"""
-    console.print("可用的風格:")
+    console.print("可用的風格：")
 
     # 列出系統內建的 style
     console.print(f"[cyan]{StyleScope.SYSTEM.value}風格:[/cyan]")
@@ -79,7 +79,7 @@ def list(repo_path: str) -> None:
     if project_style_dir.exists():
         _print_all_styles(project_style_dir)
     else:
-        console.print("  - [red]尚無可用的 style[/red]")
+        console.print("  - [red] 尚無可用的 style[/red]")
 
 
 @style.command()
@@ -95,7 +95,7 @@ def template(output: str) -> None:
     template_path = ProjectPaths.STYLE_DIR / ProjectInfo.STYLE_TEMPLATE_NAME
 
     if not template_path.exists():
-        console.print(f"[red]失敗: 找不到 style 模板檔案：{template_path}[/red]")
+        console.print(f"[red] 失敗：找不到 style 模板檔案：{template_path}[/red]")
         return
 
     output_path = Path(output).absolute()
@@ -109,15 +109,15 @@ def template(output: str) -> None:
 
 @style.command()
 @click.argument("style-file", type=click.Path(exists=True), callback=_validate_yaml)
-@click.option("--name", "-n", help="custom style name，if not set, use the file name")
+@click.option("--name", "-n", help="custom style name, if not set, use the file name")
 @click.option("--global", "-g", "global_", is_flag=True, help="need import style as global template")
 def add(style_file: str, name: Optional[str], global_: bool) -> None:
-    """匯入風格yaml檔"""
+    """匯入風格 yaml 檔"""
     try:
         style_importer = StyleImporter(Path(style_file), name, global_)
         style_importer.start_import()
     except Exception as e:
-        console.print(f"[red]錯誤：{e}[/red]")
+        console.print(f"[red] 錯誤：{e}[/red]")
 
 
 @style.command()
@@ -128,9 +128,9 @@ def use(name: str) -> None:
         manager = CommitStyleManager()
         manager.set_project_commit_style(name)
 
-        console.print(f"[green]✓ 成功設定當前專案使用 '{name}' 風格[/green]")
+        console.print(f"[green]✓ 成功設定當前專案使用 '{name}' 風格 [/green]")
     except ValueError as e:
-        console.print(f"[red]錯誤：{e}[/red]")
+        console.print(f"[red] 錯誤：{e}[/red]")
 
 
 @style.command()
@@ -151,15 +151,15 @@ def remove(name: str, global_: bool) -> None:
 
         if not style_path.exists():
             console.print(
-                f"[red]錯誤：在[blue][{scope}][/blue]層級下，找不到名稱為 '{name}' 的風格模板[/red]"
+                f"[red] 錯誤：在 [blue][{scope}][/blue] 層級下，找不到名稱為 '{name}' 的風格模板 [/red]"
             )
             console.print("請確認風格名稱是否正確，或者指定的層級是否正確")
             return
 
-        if questionary.confirm(f"確定要刪除 [{scope}]風格 '{name}' 嗎?").ask():
+        if questionary.confirm(f"確定要刪除 [{scope}] 風格 '{name}' 嗎？").ask():
             style_path.unlink()
             console.print(f"[green]✓ 成功刪除 {scope}風格 '{name}'[/green]")
         else:
-            console.print("[yellow]已取消刪除[/yellow]")
+            console.print("[yellow] 已取消刪除 [/yellow]")
     except Exception as e:
-        console.print(f"[red]錯誤：{e}[/red]")
+        console.print(f"[red] 錯誤：{e}[/red]")

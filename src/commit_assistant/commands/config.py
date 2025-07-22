@@ -10,7 +10,7 @@ from commit_assistant.utils.console_utils import console
 
 
 def _mask_api_key(api_key: str) -> str:
-    """遮蔽部分API Key"""
+    """遮蔽部分 API Key"""
     return f"{api_key[:5]}{'*' * (len(api_key) - 10)}{api_key[-5:]}"
 
 
@@ -24,7 +24,7 @@ def config() -> None:
 def setup(key: str) -> None:
     """設定 Google Gemini API Key"""
     try:
-        # 寫入key到.env文件
+        # 寫入 key 到.env 文件
         env_file = ProjectPaths.PACKAGE_DIR / ".env"
 
         if not env_file.exists():
@@ -38,7 +38,7 @@ def setup(key: str) -> None:
         console.print("commit-assistant config show")
 
     except Exception as e:
-        console.print(f"[red]錯誤：無法保存 API Key：{e}[/red]")
+        console.print(f"[red] 錯誤：無法保存 API Key：{e}[/red]")
         sys.exit(1)
 
 
@@ -53,7 +53,7 @@ def show() -> None:
             api_key = os.getenv(ConfigKey.GEMINI_API_KEY.value)
 
             if api_key is None:
-                console.print(f"{config_member.value}: [yellow]未配置[/yellow]")
+                console.print(f"{config_member.value}: [yellow] 未配置 [/yellow]")
             else:
                 console.print(_mask_api_key(api_key))
         else:
@@ -64,16 +64,16 @@ def show() -> None:
 @config.command()
 def clear() -> None:
     """清除所有配置"""
-    # 判斷.env文件是否存在，存在則刪除
+    # 判斷.env 文件是否存在，存在則刪除
     env_file = ProjectPaths.PACKAGE_DIR / ".env"
     if env_file.exists():
         if click.confirm("確定要清除所有配置嗎？"):
             env_file.unlink()
             console.print("[green]✓[/green] 配置已清除")
         else:
-            console.print("[yellow]動作已取消[/yellow]")
+            console.print("[yellow] 動作已取消 [/yellow]")
     else:
-        console.print("[yellow]沒有找到配置文件[/yellow]")
+        console.print("[yellow] 沒有找到配置文件 [/yellow]")
 
 
 @config.command()
@@ -84,9 +84,9 @@ def get_api_key() -> None:
     api_key = os.getenv(ConfigKey.GEMINI_API_KEY.value)
 
     if api_key is None:
-        console.print("[yellow]API Key 未配置[/yellow]")
+        console.print("[yellow]API Key 未配置 [/yellow]")
         return
 
-    # 返回部分API Key
+    # 返回部分 API Key
     mask_api_key = _mask_api_key(api_key)
     console.print(f"API Key: {mask_api_key}")
