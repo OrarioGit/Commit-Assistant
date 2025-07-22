@@ -101,7 +101,7 @@ class StyleImporter:
 
         # 匯入完成提示使用者訊息
         scope = f"[{StyleScope.GLOBAL.value}]" if self.is_global else f"[{StyleScope.PROJECT.value}]"
-        console.print(f"[green]✓ 已匯入為{scope}模板 風格名稱:{self.style_name}[/green]")
+        console.print(f"[green]✓ 已匯入為 {scope} 模板 風格名稱:{self.style_name}[/green]")
         console.print("\n提示：可使用以下指令開始使用此風格應用到當前專案中")
         console.print(f"  commit-assistant style use {self.style_name}")
 

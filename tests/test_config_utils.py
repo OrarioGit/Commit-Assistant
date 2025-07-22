@@ -91,7 +91,7 @@ def test_load_config_default_values(tmp_path: Path) -> None:
         load_config(str(tmp_path))
 
         assert os.environ[ConfigKey.ENABLE_COMMIT_ASSISTANT.value] == "True"
-        assert os.environ[ConfigKey.USE_MODEL.value] == "gemini-2.0-flash-exp"
+        assert os.environ[ConfigKey.USE_MODEL.value] == "gemini-2.5-flash"
         assert os.environ[ConfigKey.COMMIT_STYLE.value] == CommitStyle.CONVENTIONAL.value
 
 
