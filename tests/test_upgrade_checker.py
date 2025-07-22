@@ -13,7 +13,7 @@ from commit_assistant.utils.upgrade_checker import UpgradeChecker
 
 @pytest.fixture
 def upgrade_checker() -> UpgradeChecker:
-    """建立UpgradeChecker實例"""
+    """建立 UpgradeChecker 實例"""
     return UpgradeChecker()
 
 

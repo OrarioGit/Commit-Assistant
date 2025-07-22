@@ -62,7 +62,7 @@ def test_add_installation(installation_manager: InstallationManager, tmp_path: P
 
 def test_get_all_installations(installation_manager: InstallationManager, tmp_path: Path) -> None:
     """測試獲取所有安裝記錄"""
-    # 建立測試用的repo
+    # 建立測試用的 repo
     repo1 = tmp_path / "repo1"
     repo2 = tmp_path / "repo2"
     repo1.mkdir()
@@ -106,7 +106,7 @@ def test_remove_installation_but_without_installation(
     installation_manager.remove_installation(test_repo)
     assert not installation_manager.get_installation(test_repo)
 
-    # 驗證console輸出
+    # 驗證 console 輸出
     console_output = capsys.readouterr().out
     assert "未找到安裝信息" in console_output
 

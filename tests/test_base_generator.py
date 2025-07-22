@@ -26,7 +26,7 @@ def mock_genai() -> Generator[Mock, None, None]:
 def test_init_without_api_key() -> None:
     """測試使用者沒有設定 API key 的情況"""
     with patch.dict("os.environ", {}, clear=True):  # 清空環境變數
-        with pytest.raises(ValueError, match="請先執行.*設定API金鑰"):
+        with pytest.raises(ValueError, match="請先執行.*設定 API 金鑰"):
             BaseGeminiAIGenerator()
 
 

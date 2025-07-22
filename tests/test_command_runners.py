@@ -42,7 +42,7 @@ def test_run_command_without_env(mock_environ_copy: MagicMock, mock_popen: Magic
     mock_env: dict[str, str] = {}
     mock_environ_copy.return_value = mock_env
 
-    # 建立CommandRunner並執行命令
+    # 建立 CommandRunner 並執行命令
     runner = CommandRunner()
     with patch.object(runner, "system_encoding", "utf-8"):
         result = runner.run_command(["git", "status"])
@@ -51,7 +51,7 @@ def test_run_command_without_env(mock_environ_copy: MagicMock, mock_popen: Magic
     assert mock_env["PYTHONIOENCODING"] == "utf-8"
     assert mock_env["LANG"] == "zh_TW.utf-8"
 
-    # 驗證subprocess.Popen被正確調用
+    # 驗證 subprocess.Popen 被正確調用
     mock_popen.assert_called_once()
     args, kwargs = mock_popen.call_args
     assert args[0] == ["git", "status"]
@@ -76,7 +76,7 @@ def test_run_command_with_env(mock_environ_copy: MagicMock, mock_popen: MagicMoc
     # 創建額外的環境變數
     custom_env = {"GIT_DIR": "/custom/git", "CUSTOM_VAR": "value"}
 
-    # 創建CommandRunner實例並執行命令
+    # 創建 CommandRunner 實例並執行命令
     runner = CommandRunner()
     with patch.object(runner, "system_encoding", "utf-8"):
         result = runner.run_command(["git", "status"], env=custom_env, cwd=Path("/some/path"))
@@ -91,12 +91,12 @@ def test_run_command_with_env(mock_environ_copy: MagicMock, mock_popen: MagicMoc
         "LANG": "zh_TW.utf-8",
     }
 
-    # 驗證my_env.update(env)是否正確執行
+    # 驗證 my_env.update(env) 是否正確執行
     for key, value in custom_env.items():
         assert key in mock_environ_copy.return_value
         assert mock_environ_copy.return_value[key] == value
 
-    # 驗證subprocess.Popen被正確調用
+    # 驗證 subprocess.Popen 被正確調用
     mock_popen.assert_called_once()
     args, kwargs = mock_popen.call_args
     assert args[0] == ["git", "status"]
@@ -128,7 +128,7 @@ def test_validate_repo(git_repo: Path) -> None:
 
 def test_validate_repo_invalid(tmp_path: Path) -> None:
     """測試驗證無效的 git 倉庫"""
-    with pytest.raises(ValueError, match="不是有效的git倉庫"):
+    with pytest.raises(ValueError, match="不是有效的 git 倉庫"):
         GitCommandRunner(str(tmp_path))
 
 

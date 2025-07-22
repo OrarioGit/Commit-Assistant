@@ -10,14 +10,14 @@ from commit_assistant.commands.style import _validate_yaml, add, list, remove, t
 from commit_assistant.core.project_config import ProjectInfo
 from commit_assistant.enums.commit_style import StyleScope
 
-# 取得最原始的style Module
-# 而不是被Click 裝飾器包裹後的Module(會失去原本的屬性，導致無法mock)
+# 取得最原始的 style Module
+# 而不是被 Click 裝飾器包裹後的 Module(會失去原本的屬性，導致無法 mock)
 style_module = sys.modules["commit_assistant.commands.style"]
 
 
 @pytest.fixture
 def mock_style_dirs(tmp_path: Path) -> dict[str, Path]:
-    """建立測試用的風格目錄(系統內建/全域/專案內)"""
+    """建立測試用的風格目錄 (系統內建/全域/專案內)"""
     # 建立測試用的目錄結構
     system_dir = tmp_path / "system"
     global_dir = tmp_path / "global"
@@ -49,7 +49,7 @@ def test_validate_yaml_valid() -> None:
 def test_validate_yaml_invalid() -> None:
     """測試無效的 yaml 檔案驗證"""
     with pytest.raises(click.BadParameter):
-        # 這裡傳入txt 應該要被過濾出來
+        # 這裡傳入 txt 應該要被過濾出來
         _validate_yaml(None, None, "test.txt")
 
 
@@ -66,7 +66,7 @@ def test_list_command(tmp_path: Path, mock_style_dirs: dict[str, Path]) -> None:
         assert StyleScope.SYSTEM.value in result.output
         assert StyleScope.GLOBAL.value in result.output
         assert StyleScope.PROJECT.value in result.output
-        assert "Test Style" in result.output  # 這裡是驗證是否有正確套用到mock_style_dirs中設定的yaml內容
+        assert "Test Style" in result.output  # 這裡是驗證是否有正確套用到 mock_style_dirs 中設定的 yaml 內容
 
 
 def test_list_command_but_no_style_path_not_exist(tmp_path: Path) -> None:
@@ -106,7 +106,7 @@ def test_list_command_error(mock_style_dirs: dict[str, Path]) -> None:
         # Mock 路徑
         mock_paths.STYLE_DIR = mock_style_dirs["system"].parent
 
-        # 這裡模擬open的時候出錯
+        # 這裡模擬 open 的時候出錯
         with patch("builtins.open", side_effect=Exception):
             runner = CliRunner()
             result = runner.invoke(list)
@@ -237,7 +237,7 @@ def test_remove_command(tmp_path: Path) -> None:
 
 
 def test_remove_command_project(tmp_path: Path) -> None:
-    """測試刪除風格指令(專案內)"""
+    """測試刪除風格指令 (專案內)"""
     # 建立測試用的風格檔案
     style_dir = tmp_path / ProjectInfo.REPO_ASSISTANT_DIR / "style"
     style_dir.mkdir(parents=True)
@@ -248,7 +248,7 @@ def test_remove_command_project(tmp_path: Path) -> None:
         # 模擬使用者確認刪除
         mock_confirm.return_value.ask.return_value = True
 
-        # 模擬Path(".").absolute()的結果
+        # 模擬 Path(".").absolute() 的結果
         with patch("pathlib.Path.absolute") as mock_absolute:
             mock_absolute.return_value = tmp_path
 

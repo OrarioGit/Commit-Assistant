@@ -32,7 +32,7 @@ class ProjectPaths:
     STYLE_DIR: Final[Path] = RESOURCES_DIR / "styles"
 
     def __class_getitem__(cls, _: None) -> None:
-        """避免Class被繼承"""
+        """避免 Class 被繼承"""
         raise TypeError(f"{cls.__name__} 不能被繼承")
 
     def __init_subclass__(cls, **kwargs: Any) -> None:

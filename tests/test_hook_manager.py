@@ -109,7 +109,7 @@ def test_install_hook_git(hook_manager: HookManager, git_hooks_dir: Path) -> Non
         # Windows 系統確保檔案可以執行
         assert os.access(str(hook_path), os.X_OK)
 
-    # 確保新版的Marker存在
+    # 確保新版的 Marker 存在
     content = hook_path.read_text()
     assert HookManager.COMMIT_ASSISTANT_MARKER_START in content
     assert hook_content in content
@@ -135,7 +135,7 @@ def test_install_hook_git_with_backup(hook_manager: HookManager, git_hooks_dir: 
         # Windows 系統確保檔案可以執行
         assert os.access(str(hook_path), os.X_OK)
 
-    # 確保新版的Marker存在
+    # 確保新版的 Marker 存在
     content = hook_path.read_text()
     assert HookManager.COMMIT_ASSISTANT_MARKER_START in content
     assert hook_content in content
@@ -305,7 +305,7 @@ def test_update_git_hook_without_exist_hook(hook_manager: HookManager, git_hooks
     new_content = "new content"
     hook_manager.update_hook(new_content)
 
-    # 檢查是否有新建立 hook於 git路徑中
+    # 檢查是否有新建立 hook 於 git 路徑中
     hook_path = git_hooks_dir / "prepare-commit-msg"
     updated_content = hook_path.read_text(encoding="utf-8")
     assert HookManager.COMMIT_ASSISTANT_MARKER_START in updated_content
@@ -315,7 +315,38 @@ def test_update_git_hook_without_exist_hook(hook_manager: HookManager, git_hooks
 
 
 def test_update_git_hook_without_new_version_mark(hook_manager: HookManager, git_hooks_dir: Path) -> None:
-    """測試更新 hook，但原本的hook 卻沒有包含新版或舊版的 marker"""
+    """測試更新 hook，但原本的 hook 卻沒有包含新版或舊版的 marker"""
+    # 建立舊版本的 hook
+    old_content = "old content"
+    hook_path = git_hooks_dir / "prepare-commit-msg"
+    hook_path.write_text(old_content, encoding="utf-8")
+
+    new_content = "new content"
+    hook_manager.update_hook(new_content)
+
+    updated_content = hook_path.read_text(encoding="utf-8")
+    assert HookManager.COMMIT_ASSISTANT_MARKER_START in updated_content
+    assert new_content in updated_content
+    assert HookManager.COMMIT_ASSISTANT_MARKER_END in updated_content
+    assert HookManager.OLD_MARKER not in updated_content  # 確認舊的 marker 已經被移除
+
+    # 再測試一個有包含換行符號的舊版本 hook
+    old_content = "old content\n"
+    hook_path = git_hooks_dir / "prepare-commit-msg"
+    hook_path.write_text(old_content, encoding="utf-8")
+
+    new_content = "new content"
+    hook_manager.update_hook(new_content)
+
+    updated_content = hook_path.read_text(encoding="utf-8")
+    assert HookManager.COMMIT_ASSISTANT_MARKER_START in updated_content
+    assert new_content in updated_content
+    assert HookManager.COMMIT_ASSISTANT_MARKER_END in updated_content
+    assert HookManager.OLD_MARKER not in updated_content  # 確認舊的 marker 已經被移除
+
+
+def test_update_git_hook_but_already_newest(hook_manager: HookManager, git_hooks_dir: Path) -> None:
+    """測試更新 hook，但原本的 hook 已經是最新版本"""
     # 建立舊版本的 hook
     old_content = "old content"
     hook_path = git_hooks_dir / "prepare-commit-msg"
@@ -422,7 +453,7 @@ def test_update_husky_hook_without_exist_hook(hook_manager: HookManager, husky_d
     new_content = "new content"
     hook_manager.update_hook(new_content)
 
-    # 檢查是否有新建立 hook於 husky路徑中
+    # 檢查是否有新建立 hook 於 husky 路徑中
     hook_path = husky_dir / "prepare-commit-msg"
     updated_content = hook_path.read_text(encoding="utf-8")
     assert HookManager.COMMIT_ASSISTANT_MARKER_START in updated_content
@@ -449,7 +480,7 @@ def test_update_husky_hook_with_old_version_hook(hook_manager: HookManager, husk
 
 
 def test_update_husky_hook_but_already_newest(hook_manager: HookManager, husky_dir: Path) -> None:
-    """測試更新 hook，但原本的hook 已經是最新版本"""
+    """測試更新 hook，但原本的 hook 已經是最新版本"""
     # 建立舊版本的 hook
     old_content = (
         f"{HookManager.COMMIT_ASSISTANT_MARKER_START}\nold content\n{HookManager.COMMIT_ASSISTANT_MARKER_END}"

@@ -1,4 +1,4 @@
-"""專案的Script模組，提供了專案一些基本的腳本功能
+"""專案的 Script 模組，提供了專案一些基本的腳本功能
 
 此套件包含：
 - build_pyproject: 用來建置或更新 pyproject.toml 檔案

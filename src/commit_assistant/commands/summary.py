@@ -34,7 +34,7 @@ class CommitSummaryGenerator(BaseGeminiAIGenerator):
             prompt = f"""請根據以下的 commit message 生成繁體中文摘要：
                 1. 使用「•」作為條列符號
                 2. 每個項目需簡短扼要說明修改內容
-                3. 僅包含最重要的前個項目，最多不超過10個項目
+                3. 僅包含最重要的前個項目，最多不超過 10 個項目
                 4. 不使用表情符號或特殊符號
                 5. 不包含 commit hash
 
@@ -49,7 +49,7 @@ class CommitSummaryGenerator(BaseGeminiAIGenerator):
 
             return self._generate_content(prompt)
         except Exception as e:
-            console.print("[red]生成commit 摘要時發生錯誤: [/red]")
+            console.print("[red] 生成 commit 摘要時發生錯誤：[/red]")
             console.print(f"[red]{e}[/red]")
             return None
 
@@ -71,7 +71,7 @@ def _parse_date(date_str: Optional[str]) -> datetime:
         return datetime.now()
 
     # 針對使用者輸入的特殊日期進行處理
-    # 例如: today, yesterday, 7d
+    # 例如：today, yesterday, 7d
     if date_str == "today":
         return datetime.now()
     elif date_str == "yesterday":
@@ -130,9 +130,9 @@ def summary(start_from: Optional[str], end_to: Optional[str], author: Optional[s
     """將 commit 訊息進行摘要
 
     Args:
-        start_from (str): 起始日期, 預設使用當日 00:00:00
-        end_to (str): 結束日期, 預設使用當日 23:59:59
-        author (str): 作者名稱, 預設為 None(不篩選作者)
+        start_from (str): 起始日期，預設使用當日 00:00:00
+        end_to (str): 結束日期，預設使用當日 23:59:59
+        author (str): 作者名稱，預設為 None(不篩選作者)
         repo_path (str): git repository 路徑
     """
     # 載入環境設定
@@ -142,7 +142,7 @@ def summary(start_from: Optional[str], end_to: Optional[str], author: Optional[s
     end_dt = _parse_date(end_to)
 
     # 如果使用者沒有指定日期，則預設為當日
-    # 起始日期為 當日的00:00:00, 結束日期為 當日的23:59:59
+    # 起始日期為 當日的 00:00:00, 結束日期為 當日的 23:59:59
     if start_from is None:
         start_dt = start_dt.replace(hour=0, minute=0, second=0)
     if end_to is None:
@@ -150,13 +150,13 @@ def summary(start_from: Optional[str], end_to: Optional[str], author: Optional[s
 
     git_command_runner = GitCommandRunner(repo_path)
 
-    # 獲取該段時間內的commit message
+    # 獲取該段時間內的 commit message
     commit_message = git_command_runner.get_commits_in_date_range(start_dt, end_dt, author)
     if not commit_message:
         console.print(f"[yellow]{start_dt} ~ {end_dt} 範圍內沒有找到符合條件的 commit message[/yellow]")
         sys.exit(ExitCode.CANCEL)
 
-    with loading_spinner("正在產生commit 摘要"):
+    with loading_spinner("正在產生 commit 摘要"):
         # 透過 AI 進行摘要
         summary_generator = CommitSummaryGenerator()
         summary = summary_generator.generate_commit_summary(commit_message, start_dt, end_dt)
@@ -172,8 +172,8 @@ def summary(start_from: Optional[str], end_to: Optional[str], author: Optional[s
 
         display_ai_message(summary.text)
     except Exception:
-        console.print("[red]✗[/red] 無法複製摘要到剪貼簿, 請確認操作環境是否支援剪貼簿操作")
-        console.print("摘要內容如下:")
+        console.print("[red]✗[/red] 無法複製摘要到剪貼簿，請確認操作環境是否支援剪貼簿操作")
+        console.print("摘要內容如下：")
         console.print(summary.text)
 
     sys.exit(ExitCode.SUCCESS)

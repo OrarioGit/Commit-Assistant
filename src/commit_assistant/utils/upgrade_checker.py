@@ -11,7 +11,7 @@ from commit_assistant.utils.console_utils import console, loading_spinner
 
 class UpgradeChecker:
     UNTAGGED_VERSION = "v0.0.0"
-    CHECK_INTERVAL = 60 * 60 * 24  # 1天 每次檢查的時間間隔
+    CHECK_INTERVAL = 60 * 60 * 24  # 1 天 每次檢查的時間間隔
 
     def get_latest_check_time(self) -> Optional[datetime]:
         """取得上次檢查更新的時間"""
@@ -69,7 +69,7 @@ class UpgradeChecker:
             return None
 
         except Exception:
-            console.print("[red]檢查更新失敗，請稍後再試")
+            console.print("[red] 檢查更新失敗，請稍後再試")
             return None
 
     def print_update_message(self, newest_version: str) -> None:
@@ -79,18 +79,18 @@ class UpgradeChecker:
             newest_version (str): 最新版本號
         """
         console.print(
-            f"[yellow]發現新版本 [cyan]{newest_version}[/cyan]！您可以透過以下方式更新：[/yellow]\n"
+            f"[yellow] 發現新版本 [cyan]{newest_version}[/cyan]！您可以透過以下方式更新：[/yellow]\n"
         )
-        console.print("[yellow]1. 執行更新指令[/yellow]")
+        console.print("[yellow]1. 執行更新指令 [/yellow]")
         console.print(f"   [green]{ProjectInfo.CLI_MAIN_COMMAND} upgrade[/green]")
-        console.print("[yellow]2. 透過 pip 安裝最新版本[/yellow]")
+        console.print("[yellow]2. 透過 pip 安裝最新版本 [/yellow]")
         console.print(f"   [green]pip install {ProjectInfo.GITHUB_REPO_URL} -U[/green]\n")
 
     def run_version_check(self, force: bool = False) -> None:
         """執行版本檢查
 
         Args:
-            force (bool, optional): 是否強制檢查更新. Defaults to False.
+            force (bool, optional): 是否強制檢查更新。Defaults to False.
         """
         if not force and not self.should_check_update():
             return

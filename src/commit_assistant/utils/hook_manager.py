@@ -17,7 +17,7 @@ class HookVersion(enum.Enum):
 
 
 class HookManager:
-    # 定義Marker用來標記哪一塊是我們的hook 內容
+    # 定義 Marker 用來標記哪一塊是我們的 hook 內容
     COMMIT_ASSISTANT_MARKER_START = "### BEGIN: commit-assistant hook section (DO NOT REMOVE) ###"
     COMMIT_ASSISTANT_MARKER_END = "### END: commit-assistant hook section (DO NOT REMOVE) ###"
 
@@ -71,7 +71,7 @@ class HookManager:
         )
 
         if hook_file.exists():
-            # 檢查是否該hook已經包含我們的命令
+            # 檢查是否該 hook 已經包含我們的命令
             current_content = hook_file.read_text(encoding="utf-8")
             if self.COMMIT_ASSISTANT_MARKER_START in current_content:
                 console.print(
@@ -79,7 +79,7 @@ class HookManager:
                 )
                 return
 
-            # 添加到現有hook的末尾
+            # 添加到現有 hook 的末尾
             with hook_file.open("a", encoding="utf-8") as f:
                 f.write(f"\n{full_hook_content}\n")
         else:
@@ -103,7 +103,7 @@ class HookManager:
 
         current_content = self.hook_path.read_text(encoding="utf-8")
 
-        # 如果已經包含我們的hook，則不需要重複添加
+        # 如果已經包含我們的 hook，則不需要重複添加
         if self.COMMIT_ASSISTANT_MARKER_START in current_content:
             return current_content
 
@@ -124,7 +124,7 @@ class HookManager:
         end_pattern = re.escape("\n" + self.COMMIT_ASSISTANT_MARKER_END)
 
         # 本次更新的內容
-        # !注意：這裡的 new_hook_content 已經包含了標記
+        # ! 注意：這裡的 new_hook_content 已經包含了標記
         replacement = (
             f"{self.COMMIT_ASSISTANT_MARKER_START}\n{new_hook_content}\n{self.COMMIT_ASSISTANT_MARKER_END}"
         )
@@ -193,7 +193,7 @@ class HookManager:
     def _update_git_hook_with_version(self, new_hook_content: str) -> None:
         """更新 git hook，支援版本升級"""
         if not self.hook_path.exists():
-            console.print("[yellow]未找到現有的 git hook，將進行全新安裝...[/yellow]")
+            console.print("[yellow] 未找到現有的 git hook，將進行全新安裝...[/yellow]")
             self.install_hook(new_hook_content)
             return
 
@@ -203,7 +203,7 @@ class HookManager:
 
         # 根據版本處理
         if version == HookVersion.OLD:
-            console.print("[yellow]檢測到舊版本的 hook，正在升級...[/yellow]")
+            console.print("[yellow] 檢測到舊版本的 hook，正在升級...[/yellow]")
             # 先遷移到新格式
             current_content = self._migrate_to_new_format(current_content)
 
@@ -215,13 +215,13 @@ class HookManager:
             # 備份當前版本
             backup_path = self._backup_existing_hook()
             if backup_path:
-                console.print(f"[yellow]已備份當前 hook 至 {backup_path}[/yellow]")
+                console.print(f"[yellow] 已備份當前 hook 至 {backup_path}[/yellow]")
 
             self.hook_path.write_text(updated_content, encoding="utf-8")
             self.hook_path.chmod(0o755)
-            console.print("[green]已成功更新 git hook[/green]")
+            console.print("[green] 已成功更新 git hook[/green]")
         else:
-            console.print("[yellow]hook 內容已是最新版本[/yellow]")
+            console.print("[yellow]hook 內容已是最新版本 [/yellow]")
 
     def _update_husky_hook_with_version(self, new_hook_content: str) -> None:
         """更新 husky hook，支援版本升級"""
@@ -229,7 +229,7 @@ class HookManager:
         hook_file = husky_dir / ProjectInfo.HOOK_TEMPLATE_NAME
 
         if not hook_file.exists():
-            console.print("[yellow]未找到現有的 husky hook，將進行全新安裝...[/yellow]")
+            console.print("[yellow] 未找到現有的 husky hook，將進行全新安裝...[/yellow]")
             self._install_hook_husky(new_hook_content)
             return
 
@@ -239,7 +239,7 @@ class HookManager:
 
         # 根據版本處理
         if version == HookVersion.OLD:
-            console.print("[yellow]檢測到舊版本的 husky hook，正在升級...[/yellow]")
+            console.print("[yellow] 檢測到舊版本的 husky hook，正在升級...[/yellow]")
             # 先遷移到新格式
             current_content = self._migrate_to_new_format(current_content)
 
@@ -250,22 +250,22 @@ class HookManager:
         if updated_content != current_content:
             hook_file.write_text(updated_content, encoding="utf-8")
             hook_file.chmod(0o755)
-            console.print("[green]已成功更新 husky hook[/green]")
+            console.print("[green] 已成功更新 husky hook[/green]")
         else:
-            console.print("[yellow]husky hook 內容已是最新版本[/yellow]")
+            console.print("[yellow]husky hook 內容已是最新版本 [/yellow]")
 
     def install_hook(self, hook_content: str) -> None:
         """安裝或更新 hook"""
         # 檢查是否使用 husky
         if self._detect_husky():
-            console.print("[yellow]偵測到husky，嘗試安裝於husky的設定中...[/yellow]")
+            console.print("[yellow] 偵測到 husky，嘗試安裝於 husky 的設定中...[/yellow]")
             self._install_hook_husky(hook_content)
             return
 
         # 備份現有的 hook
         backup_path = self._backup_existing_hook()
         if backup_path:
-            console.print(f"已備份舊版hook於 {backup_path}...")
+            console.print(f"已備份舊版 hook 於 {backup_path}...")
 
         # 將我們的 hook 內容注入到現有 hook 文件中
         injected_content = self._inject_hooks(hook_content)
