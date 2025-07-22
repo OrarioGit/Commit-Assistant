@@ -14,20 +14,20 @@ def _upgrade(yes: bool) -> None:
     newest_version = checker.check_for_updates_version()
 
     if not newest_version:
-        console.print(f"[green]目前已是最新版本。當前版本: [cyan]{ProjectInfo.VERSION}[/cyan][/green]")
+        console.print(f"[green] 目前已是最新版本。當前版本：[cyan]{ProjectInfo.VERSION}[/cyan][/green]")
         return
 
     # 確認是否要更新
     if not yes:
-        console.print(f"發現新版本: [cyan]{newest_version}[/cyan]")
+        console.print(f"發現新版本：[cyan]{newest_version}[/cyan]")
         confirm = click.confirm("是否要更新？", default=True)
 
         if not confirm:
-            console.print("[yellow]已取消更新[/yellow]")
+            console.print("[yellow] 已取消更新 [/yellow]")
             return
 
     # 更新
-    console.print(f"[bold cyan]正在更新至 {newest_version}...[/bold cyan]")
+    console.print(f"[bold cyan] 正在更新至 {newest_version}...[/bold cyan]")
 
     try:
         runner = CommandRunner()
@@ -35,12 +35,12 @@ def _upgrade(yes: bool) -> None:
         cmd = ["pip", "install", ProjectInfo.GITHUB_REPO_URL, "-U"]
         runner.run_command(cmd)
 
-        console.print("[green bold]✓ 更新成功[/green bold]")
+        console.print("[green bold]✓ 更新成功 [/green bold]")
         console.print(
-            f"[green]已從 [cyan]{ProjectInfo.VERSION}[/cyan] 更新至 [cyan]{newest_version}[/cyan][/green]"
+            f"[green] 已從 [cyan]{ProjectInfo.VERSION}[/cyan] 更新至 [cyan]{newest_version}[/cyan][/green]"
         )
     except Exception as e:
-        console.print(f"[bold red]× 更新過程中發生錯誤: {str(e)}[/bold red]")
+        console.print(f"[bold red]× 更新過程中發生錯誤：{str(e)}[/bold red]")
 
 
 @click.group(invoke_without_command=True)
@@ -63,4 +63,4 @@ def check() -> None:
     if newest_version:
         checker.print_update_message(newest_version)
     else:
-        console.print(f"[green]目前已是最新版本。當前版本: [cyan]{ProjectInfo.VERSION}[/cyan][/green]")
+        console.print(f"[green] 目前已是最新版本。當前版本：[cyan]{ProjectInfo.VERSION}[/cyan][/green]")

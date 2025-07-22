@@ -91,7 +91,7 @@ def test_load_config_default_values(tmp_path: Path) -> None:
         load_config(str(tmp_path))
 
         assert os.environ[ConfigKey.ENABLE_COMMIT_ASSISTANT.value] == "True"
-        assert os.environ[ConfigKey.USE_MODEL.value] == "gemini-2.0-flash-exp"
+        assert os.environ[ConfigKey.USE_MODEL.value] == "gemini-2.5-flash"
         assert os.environ[ConfigKey.COMMIT_STYLE.value] == CommitStyle.CONVENTIONAL.value
 
 
@@ -167,4 +167,4 @@ def test_load_config_file_error(tmp_path: Path, capsys: pytest.CaptureFixture) -
 
         # 驗證錯誤訊息
         console_output = capsys.readouterr().out
-        assert "載入commit-assistant config 失敗" in console_output
+        assert "載入 commit-assistant config 失敗" in console_output

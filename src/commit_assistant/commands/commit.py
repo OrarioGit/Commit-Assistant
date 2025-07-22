@@ -8,6 +8,7 @@ from google.generativeai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
 from commit_assistant.enums.commit_style import CommitStyle
+from commit_assistant.enums.config_key import ConfigKey
 from commit_assistant.enums.exit_code import ExitCode
 from commit_assistant.enums.user_choices import UserChoices
 from commit_assistant.utils.command_runners import GitCommandRunner
@@ -19,26 +20,27 @@ class EnhancedCommitGenerator(BaseGeminiAIGenerator):
     def generate_structured_message(
         self, changed_files: List[str], diff_content: str
     ) -> Optional[GenerateContentResponse]:
-        """生成結構化的commit message
+        """生成結構化的 commit message
 
         Args:
             changed_files (List[str]): 修改的文件列表
-            diff_content (str): git diff內容
+            diff_content (str): git diff 內容
 
         Returns:
-            GenerateContentResponse | None: 生成的commit message
+            GenerateContentResponse | None: 生成的 commit message
         """
 
-        # 獲取指定風格的prompt
-        use_style = os.getenv("COMMIT_STYLE", CommitStyle.CONVENTIONAL.value)
+        # 獲取指定風格的 prompt
+        use_style = os.getenv(ConfigKey.COMMIT_STYLE.value, CommitStyle.CONVENTIONAL.value)
+        use_model = os.getenv(ConfigKey.USE_MODEL.value, "gemini-2.5-flash")
         prompt = self.style_manager.get_prompt(use_style, changed_files, diff_content)
 
-        console.print(f"[cyan]生成 commit message 使用 <{use_style}> 風格 [/cyan]")
+        console.print(f"[cyan] 生成 commit message 使用 <{use_style}> 風格，採用模型 <{use_model}> [/cyan]")
 
         try:
             return self._generate_content(prompt)
         except Exception as e:
-            console.print("[red]生成commit message時發生錯誤: [/red]")
+            console.print("[red] 生成 commit message 時發生錯誤：[/red]")
             console.print(f"[red]{e}[/red]")
             return None
 
@@ -63,9 +65,9 @@ def get_user_choice(choices: List[str]) -> str:
             idx = int(selection) - 1
             if 0 <= idx < len(choices):
                 return choices[idx]
-            console.print("[red]無效的選擇，請重試[/red]")
+            console.print("[red] 無效的選擇，請重試 [/red]")
         except ValueError:
-            console.print("[red]請輸入有效的數字[/red]")
+            console.print("[red] 請輸入有效的數字 [/red]")
 
 
 def edit_commit_message(initial_message: str = "") -> tuple[str, bool]:
@@ -73,7 +75,7 @@ def edit_commit_message(initial_message: str = "") -> tuple[str, bool]:
     使用 questionary 提供互動式編輯功能
 
     Returns:
-        tuple[str, bool]: (編輯後的訊息, 是否確認提交)
+        tuple[str, bool]: (編輯後的訊息，是否確認提交)
     """
     while True:
         message = questionary.text(
@@ -120,9 +122,9 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
         # 詢問使用者要如何處理
         choice = get_user_choice(choices)
 
-        # 如果是使用者直接ctrl+c取消
+        # 如果是使用者直接 ctrl+c 取消
         if choice is None or choice == UserChoices.CANCEL_OPERATION.value:
-            console.print("[yellow]Commit 已取消[/yellow]")
+            console.print("[yellow]Commit 已取消 [/yellow]")
             return ExitCode.CANCEL.value
 
         final_message = ""
@@ -132,11 +134,11 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
         elif choice == UserChoices.EDIT_AI_MESSAGE.value:
             edited_message, confirmed = edit_commit_message(ai_message)
             if not confirmed:
-                console.print("[yellow]Commit 已取消[/yellow]")
+                console.print("[yellow]Commit 已取消 [/yellow]")
                 return ExitCode.CANCEL.value
             final_message = edited_message
         else:
-            console.print("[red]選項錯誤，無法使用的選項[/red]")
+            console.print("[red] 選項錯誤，無法使用的選項 [/red]")
             return ExitCode.ERROR.value
 
         # 去除頭尾的 ``` 符號
@@ -150,7 +152,7 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
         return ExitCode.SUCCESS.value
 
     except Exception as e:
-        console.print(f"[red]錯誤：{str(e)}[/red]")
+        console.print(f"[red] 錯誤：{str(e)}[/red]")
         return ExitCode.ERROR.value
 
 
@@ -166,14 +168,14 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
 )
 def commit(commit_msg_file: str, repo_path: str) -> int:
     """
-    透過AI生成commit message
+    透過 AI 生成 commit message
 
     Args:
-        commit_msg_file (str): git commit 要寫入的message檔案
+        commit_msg_file (str): git commit 要寫入的 message 檔案
         repo_path (str): git repository 路徑
 
     Returns:
-        int: 成功返回0，否則返回其他數值
+        int: 成功返回 0，否則返回其他數值
     """
     try:
         # 載入環境設定
@@ -191,10 +193,10 @@ def commit(commit_msg_file: str, repo_path: str) -> int:
         with loading_spinner("分析 Git 變更"):
             changed_files = git_command_runner.get_staged_files()
             if not changed_files:
-                console.print("[yellow]沒有發現暫存的變更[/yellow]")
+                console.print("[yellow] 沒有發現暫存的變更 [/yellow]")
                 sys.exit(ExitCode.CANCEL.value)
 
-        # 獲取diff內容
+        # 獲取 diff 內容
         diff_content = git_command_runner.get_staged_diff()
 
         # 生成 commit message
@@ -211,8 +213,8 @@ def commit(commit_msg_file: str, repo_path: str) -> int:
         exit_code = update_commit_message(commit_msg_file, response.text)
         sys.exit(exit_code)
     except KeyboardInterrupt:
-        console.print("\n[yellow]操作已取消[/yellow]")
+        console.print("\n[yellow] 操作已取消 [/yellow]")
         sys.exit(ExitCode.CANCEL)
     except Exception as e:
-        console.print(f"[red]錯誤：{str(e)}[/red]")
+        console.print(f"[red] 錯誤：{str(e)}[/red]")
         sys.exit(ExitCode.ERROR)

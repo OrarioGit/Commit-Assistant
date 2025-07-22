@@ -31,7 +31,7 @@ Commit Assistant 是一個基於 AI 的 Git commit 訊息生成工具，它能�
    - [風格操作指令](#列出當前專案可使用的風格)
    - [使用建議](#使用建議)
 6. [摘要功能](#摘要功能)
-7. [共同開發](#共同開發)
+7. [共同開發此專案](#共同開發此專案)
    - [開發環境設定](#1-安裝開發相依套件)
    - [程式碼規範](#3-程式碼風格與檢查)
 8. [常見問題](#常見問題)
@@ -199,7 +199,7 @@ Commit Assistant 提供三種層級的風格管理：
    - 適合專案特定的提交規範
    - 團隊所有成員都可以使用
 
-如果有重名  
+如果有重名
 系統使用優先順序：專案自訂 > 全域自訂 > 系統內建
 
 ### 系統內建的風格範例
@@ -224,8 +224,8 @@ commit-assistant style list
 
 ### 在專案內使用特定風格
 
-執行完後，會幫您把設定的風格寫入我們的config檔案中  
-注意: 如果有重名的檔案  
+執行完後，會幫您把設定的風格寫入我們的 config 檔案中
+注意：如果有重名的檔案
 系統採用順序：專案自訂 > 全域自訂 > 系統內建
 
 ```bash
@@ -233,9 +233,9 @@ cd your-repository-path
 commit-assistant style use <風格名稱>
 ```
 
-### 匯出風格template
+### 匯出風格 template
 
-第一次使用不知道該匯入怎麼樣的格式嗎，使用template 照著改就行~
+第一次使用不知道該匯入怎麼樣的格式嗎，使用 template 照著改就行~
 
 ```bash
 # 匯出模板到當前目錄
@@ -292,9 +292,9 @@ commit-assistant style remove <風格名稱> -g
 ### 使用建議
 
 1. 選擇全域或專案風格？
-    - 如果是團隊共用的風格，建議使用專案風格
-    - 如果是個人偏好的風格，建議使用全域風格
-    - 如果需要在版本控制中追蹤風格的變更，使用專案風格  
+    - 如果是團隊共用的風格，建議使用專案風格，更好與團隊共用
+    - 如果是個人偏好的風格，建議使用全域風格，使用全域優先使用自己的個人風格
+    - 如果需要在版本控制中追蹤風格的變更，使用專案風格，畢竟團隊的統一也很重要
 2. 風格管理最佳實踐
     - 在 `.gitignore` 中排除全域風格目錄
     - 為風格檔案提供清楚的描述
@@ -308,7 +308,7 @@ commit-assistant style remove <風格名稱> -g
 commit-assistant summary --start-from "commit 起始日期(YYYY-mm-dd HH:MM:SS 或 YYYY-mm-dd)" --end-to "commit 結束日期(YYYY-mm-dd HH:MM:SS 或 YYYY-mm-dd)"
 ```
 
-## 共同開發
+## 共同開發此專案
 
 ### Git 工作流程
 
@@ -328,6 +328,9 @@ git pull --rebase origin main
 git clone https://github.com/OrarioGit/Commit-Assistant.git
 cd commit-assistant
 
+# 可依需求建立虛擬環境
+# uv venv
+
 # 安裝開發相依套件
 pip install -e ".[dev]"
 ```
@@ -335,6 +338,7 @@ pip install -e ".[dev]"
 ### 2. 安裝 pre-commit hooks
 
 ```bash
+# 這會在您 commit 前做些基本檢查
 pre-commit install
 ```
 
@@ -358,23 +362,23 @@ ruff format .
 
 ### 4. 關於產生 pyproject.toml
 
-在本專案中如果有相關的更動比如**版本更新**、**依賴更新**等  
-可先更改`core/project_config.py`裡面的設定  
-並執行以下指令  
+在本專案中如果有相關的更動比如**版本更新**、**依賴更新**等
+可先更改`core/project_config.py`裡面的設定
+並執行以下指令
 
 ```bash
 python -m commit_assistant.scripts.build_pyproject
 ```
 
-該指令可根據變更產生出統一規範的pyproject.toml檔  
-**注意!** 執行前需先使用`pip install -e ".[dev]"`進行安裝
+該指令可根據變更產生出統一規範的 pyproject.toml 檔
+**注意！** 執行前需先使用`pip install -e ".[dev]"`進行安裝
 
 ## 常見問題
 
-**Q: 如何更新 API 金鑰？**  
+**Q: 如何更新 API 金鑰？**
 A: 再次運行 `commit-assistant config setup` 即可更新
 
-**Q: 如何在特定專案停用自動生成？**  
+**Q: 如何在特定專案停用自動生成？**
 A: 編輯 `.commit-assistant-config` 檔案，設定 `ENABLE_COMMIT_ASSISTANT=false`
 
 ## 貢獻

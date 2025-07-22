@@ -47,12 +47,12 @@ def load_config(repo_root: str = ".") -> None:
     3. 默認值
 
     Args:
-        repo_root (str, optional): 專案根目錄路徑. Defaults to ".".
+        repo_root (str, optional): 專案根目錄路徑。Defaults to ".".
     """
     # 定義默認配置
     config: dict[str, Any] = {
         ConfigKey.ENABLE_COMMIT_ASSISTANT.value: True,
-        ConfigKey.USE_MODEL.value: "gemini-2.0-flash-exp",
+        ConfigKey.USE_MODEL.value: "gemini-2.5-flash",
         ConfigKey.GEMINI_API_KEY.value: None,
         ConfigKey.COMMIT_STYLE.value: CommitStyle.CONVENTIONAL.value,
     }
@@ -69,7 +69,7 @@ def load_config(repo_root: str = ".") -> None:
     try:
         _load_config_from_config_file(config, repo_root)
     except Exception as e:
-        console.print(f"[yellow]載入commit-assistant config 失敗: {e}[/yellow]")
+        console.print(f"[yellow] 載入 commit-assistant config 失敗：{e}[/yellow]")
 
     # 將 config 設定進環境變數
     for key, value in config.items():
@@ -97,5 +97,5 @@ def install_config(repo_root: str) -> None:
 
         shutil.copy(default_config_file, config_file)
     except Exception as e:
-        console.print(f"[red]安裝配置文件失敗: {e}[/red]")
+        console.print(f"[red] 安裝配置文件失敗：{e}[/red]")
         return

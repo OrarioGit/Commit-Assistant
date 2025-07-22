@@ -5,7 +5,7 @@
 - 相依套件設定
 - 專案基本資訊（名稱、描述等）
 - 資源檔案設定
-- 進入點(Entry Points)設定
+- 進入點 (Entry Points) 設定
 
 這些資訊主要用於：
 1. 產生 pyproject.toml 設定檔
@@ -19,7 +19,7 @@ from typing import List
 
 class ProjectInfo:
     NAME: str = "commit-assistant"
-    VERSION: str = "0.1.8"
+    VERSION: str = "0.1.9"
     DESCRIPTION: str = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
     PYTHON_REQUIRES: str = ">=3.9"
     LICENSE: str = "Apache-2.0"
@@ -48,13 +48,13 @@ class ProjectInfo:
         REQUEST_TYPE = "types-requests>=2.32.0.20241016"
         FREEZEGUN = "freezegun>=1.5.1"
 
-    # 專案的GitHub Repo URL
+    # 專案的 GitHub Repo URL
     GITHUB_REPO_URL = "git+https://github.com/OrarioGit/Commit-Assistant.git"
 
-    # 專案GitHub的Release Tag URL
+    # 專案 GitHub 的 Release Tag URL
     RELEASE_TAG_URL = "https://api.github.com/repos/OrarioGit/Commit-Assistant/tags"
 
-    # 專案的package路徑
+    # 專案的 package 路徑
     PACKAGE_PATH = "src"
     PACKAGE_INCLUDE = ["commit_assistant*"]
 
@@ -89,13 +89,13 @@ class ProjectInfo:
     # 會在使用者專案底下建立我們的專案管理目錄名稱
     REPO_ASSISTANT_DIR = ".commit-assistant"
 
-    # 用來記錄比如使用者安裝的版本號、repo路徑等資訊
+    # 用來記錄比如使用者安裝的版本號、repo 路徑等資訊
     INSTALLATIONS_FILE = "installations.toml"
 
     # 用來記錄上次檢查更新的時間檔名
     UPGRADE_CHECK_FILE = "latest_upgrade_check"
 
-    # unit test相關
+    # unit test 相關
     TEST_DIRS = ["commit-assistant"]
     TEST_COMMAND = (
         "--cov=commit_assistant --cov-branch --cov-report=term-missing --cov-report=html --cov-report=xml -v"

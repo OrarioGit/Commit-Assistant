@@ -17,8 +17,8 @@ from commit_assistant.commands.commit import (
 )
 from commit_assistant.enums.config_key import ConfigKey
 
-# 取得最原始的commit Module
-# 而不是被Click 裝飾器包裹後的Module(會失去原本的屬性，導致無法mock)
+# 取得最原始的 commit Module
+# 而不是被 Click 裝飾器包裹後的 Module(會失去原本的屬性，導致無法 mock)
 commit_module = sys.modules["commit_assistant.commands.commit"]
 
 
@@ -50,7 +50,7 @@ def test_generate_structured_message() -> None:
     with patch.dict("os.environ", {ConfigKey.GEMINI_API_KEY.value: "test_api_key"}):
         generator = EnhancedCommitGenerator()
 
-    # Mock generator裡面的 _generate_content 方法
+    # Mock generator 裡面的 _generate_content 方法
     with patch.object(generator, "_generate_content") as mock_generate:
         mock_response = Mock(spec=GenerateContentResponse)
         mock_generate.return_value = mock_response
@@ -72,7 +72,7 @@ def test_generate_structured_message_error() -> None:
     with patch.dict("os.environ", {ConfigKey.GEMINI_API_KEY.value: "test_api_key"}):
         generator = EnhancedCommitGenerator()
 
-    # Mock generator裡面的 _generate_content 方法
+    # Mock generator 裡面的 _generate_content 方法
     with patch.object(generator, "_generate_content") as mock_generate:
         mock_generate.side_effect = Exception("mock error")
 
@@ -95,7 +95,7 @@ def test_get_user_choice(monkeypatch: pytest.MonkeyPatch) -> None:
         UserChoices.CANCEL_OPERATION.value,
     ]
 
-    # 模擬使用者輸入2
+    # 模擬使用者輸入 2
     monkeypatch.setattr("builtins.input", lambda _: "2")
 
     user_choice = get_user_choice(choices)
@@ -111,7 +111,7 @@ def test_get_user_choice_invalid_then_valid(monkeypatch: pytest.MonkeyPatch) -> 
         UserChoices.CANCEL_OPERATION.value,
     ]
 
-    inputs = iter(["0", "abc", "1"])  # 先輸入無效選項，最後輸入有效選項1
+    inputs = iter(["0", "abc", "1"])  # 先輸入無效選項，最後輸入有效選項 1
     monkeypatch.setattr("builtins.input", lambda _: next(inputs))
 
     user_choice = get_user_choice(choices)
@@ -136,7 +136,7 @@ def test_commit_command_success(mock_git_runner: Mock, mock_generator: Mock, tmp
 
 
 def test_commit_command_no_staged_files(mock_git_runner: Mock, tmp_path: Path) -> None:
-    """測試git stage沒有任何檔案的情況"""
+    """測試 git stage 沒有任何檔案的情況"""
     mock_git_runner.get_staged_files.return_value = []
 
     msg_file = tmp_path / "COMMIT_MSG"
@@ -150,13 +150,13 @@ def test_commit_command_no_staged_files(mock_git_runner: Mock, tmp_path: Path) -
 
 
 def test_commit_command_user_cancel(mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path) -> None:
-    """測試使用者直接Ctrl+C取消操作"""
+    """測試使用者直接 Ctrl+C 取消操作"""
     msg_file = tmp_path / "COMMIT_MSG"
     msg_file.touch()
 
     runner = CliRunner()
 
-    # 模擬使用者直接Ctrl+C取消操作
+    # 模擬使用者直接 Ctrl+C 取消操作
     mock_generator.generate_structured_message.side_effect = KeyboardInterrupt
     result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
 
@@ -165,13 +165,13 @@ def test_commit_command_user_cancel(mock_git_runner: Mock, mock_generator: Mock,
 
 
 def test_commit_command_error(mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path) -> None:
-    """測試執行commit 指令的時候發生錯誤"""
+    """測試執行 commit 指令的時候發生錯誤"""
     msg_file = tmp_path / "COMMIT_MSG"
     msg_file.touch()
 
     runner = CliRunner()
 
-    # 模擬生成commit message時發生錯誤
+    # 模擬生成 commit message 時發生錯誤
     mock_generator.generate_structured_message.side_effect = Exception("mock error")
     result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
 
@@ -181,13 +181,13 @@ def test_commit_command_error(mock_git_runner: Mock, mock_generator: Mock, tmp_p
 
 
 def test_commit_command_generate_error(mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path) -> None:
-    """測試生成commit message時發生錯誤"""
+    """測試生成 commit message 時發生錯誤"""
     msg_file = tmp_path / "COMMIT_MSG"
     msg_file.touch()
 
     runner = CliRunner()
 
-    # 模擬生成commit message時發生錯誤(返回None)
+    # 模擬生成 commit message 時發生錯誤 (返回 None)
     mock_generator.generate_structured_message.return_value = None
     result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
 
@@ -196,13 +196,13 @@ def test_commit_command_generate_error(mock_git_runner: Mock, mock_generator: Mo
 
 
 def test_commit_command_not_enable(tmp_path: Path) -> None:
-    """測試設定中不啟用commit assistant"""
+    """測試設定中不啟用 commit assistant"""
     msg_file = tmp_path / "COMMIT_MSG"
     msg_file.touch()
 
     runner = CliRunner()
 
-    # 模擬設定中不啟用commit assistant
+    # 模擬設定中不啟用 commit assistant
     with patch.dict("os.environ", {"ENABLE_COMMIT_ASSISTANT": "false"}):
         result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
 
@@ -212,7 +212,7 @@ def test_commit_command_not_enable(tmp_path: Path) -> None:
 def test_commit_command_user_cancel_update_commit_message(
     mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
 ) -> None:
-    """測試使用者在更新message檔案時，選擇取消作業"""
+    """測試使用者在更新 message 檔案時，選擇取消作業"""
     msg_file = tmp_path / "COMMIT_MSG"
     msg_file.touch()
 
@@ -229,7 +229,7 @@ def test_commit_command_user_cancel_update_commit_message(
 def test_commit_command_user_choice_not_in_choices(
     mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
 ) -> None:
-    """測試使用者在更新message檔案時，使用者選擇意外的不在選項中"""
+    """測試使用者在更新 message 檔案時，使用者選擇意外的不在選項中"""
     msg_file = tmp_path / "COMMIT_MSG"
     msg_file.touch()
 
@@ -246,13 +246,13 @@ def test_commit_command_user_choice_not_in_choices(
 def test_commit_command_user_update_commit_message_error(
     mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
 ) -> None:
-    """測試使用者在更新message檔案時，發生錯誤"""
+    """測試使用者在更新 message 檔案時，發生錯誤"""
     msg_file = tmp_path / "COMMIT_MSG"
     msg_file.touch()
 
     runner = CliRunner()
 
-    # 模擬get_user_choice 函數發生錯誤
+    # 模擬 get_user_choice 函數發生錯誤
     with patch.object(commit_module, "get_user_choice", side_effect=Exception("mock error")):
         result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
 
@@ -263,7 +263,7 @@ def test_commit_command_user_update_commit_message_error(
 def test_commit_command_user_edit_update_commit_message(
     mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
 ) -> None:
-    """測試使用者在更新message檔案時，選擇編輯作業"""
+    """測試使用者在更新 message 檔案時，選擇編輯作業"""
     msg_file = tmp_path / "COMMIT_MSG"
     msg_file.touch()
 
@@ -282,7 +282,7 @@ def test_commit_command_user_edit_update_commit_message(
 def test_commit_command_user_cancel_edit_update_commit_message(
     mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
 ) -> None:
-    """測試使用者在更新message檔案時，選擇編輯作業時取消"""
+    """測試使用者在更新 message 檔案時，選擇編輯作業時取消"""
     msg_file = tmp_path / "COMMIT_MSG"
     msg_file.touch()
 

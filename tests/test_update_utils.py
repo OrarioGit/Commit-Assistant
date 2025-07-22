@@ -120,7 +120,7 @@ def test_update_with_old_config_migration(update_manager: UpdateManager, mock_te
 
 def test_update_config_without_config_path(update_manager: UpdateManager, mock_template_paths: Dict) -> None:
     """測試更新設定檔"""
-    # 如果update_manager.config_path存在，則先刪除
+    # 如果 update_manager.config_path 存在，則先刪除
     if update_manager.config_path.exists():
         update_manager.config_path.unlink()
 
