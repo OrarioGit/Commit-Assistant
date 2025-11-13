@@ -21,7 +21,7 @@ class ProjectInfo:
     NAME: str = "commit-assistant"
     VERSION: str = "0.1.10"
     DESCRIPTION: str = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
-    PYTHON_REQUIRES: str = ">=3.9"
+    PYTHON_REQUIRES: str = ">=3.10"
     LICENSE: str = "Apache-2.0"
 
     # 專案的相依套件
