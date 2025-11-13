@@ -20,7 +20,7 @@ class CustomGenerator(BaseGeminiAIGenerator):
 
 環境變數:
     GEMINI_API_KEY: Gemini API 金鑰
-    GENERATIVE_MODEL: 使用的模型名稱，預設為 "gemini-2.0-flash-exp"
+    GENERATIVE_MODEL: 使用的模型名稱，預設為 DefaultValue.DEFAULT_MODEL
 
 錯誤處理:
     ValueError: 當未設定 API 金鑰時拋出
@@ -29,9 +29,10 @@ class CustomGenerator(BaseGeminiAIGenerator):
 import os
 from typing import Optional
 
-import google.generativeai as genai
-from google.generativeai.types import GenerateContentResponse
+from google import genai
+from google.genai.types import GenerateContentResponse
 
+from commit_assistant.enums.default_value import DefaultValue
 from commit_assistant.utils.console_utils import console
 from commit_assistant.utils.style_utils import CommitStyleManager
 
@@ -45,13 +46,16 @@ class BaseGeminiAIGenerator:
             console.print("[yellow] 檢測到尚未設定 Gemini api key [/yellow]")
             raise ValueError("請先執行 commit-assistant config setup 設定 API 金鑰")
 
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(os.getenv("GENERATIVE_MODEL", "gemini-2.0-flash-exp"))
+        self.client = genai.Client(api_key=api_key)
+        self.model = os.getenv("GENERATIVE_MODEL", DefaultValue.DEFAULT_MODEL.value)
         self.style_manager = CommitStyleManager()
 
     def _generate_content(self, prompt: str) -> Optional[GenerateContentResponse]:
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=prompt,
+            )
             return response
         except Exception as e:
             console.print("[red] 生成內容時發生錯誤：[/red]")

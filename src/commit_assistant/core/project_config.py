@@ -19,7 +19,7 @@ from typing import List
 
 class ProjectInfo:
     NAME: str = "commit-assistant"
-    VERSION: str = "0.1.9"
+    VERSION: str = "0.1.10"
     DESCRIPTION: str = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
     PYTHON_REQUIRES: str = ">=3.9"
     LICENSE: str = "Apache-2.0"
@@ -28,7 +28,7 @@ class ProjectInfo:
     class Dependencies(Enum):
         CLICK = "click>=8.0.0"
         PYTHON_DOTENV = "python-dotenv>=1.0.1"
-        GOOGLE_GENERATIVEAI = "google-generativeai>=0.8.4"
+        GOOGLE_GENAI = "google-genai>=1.50.0"
         QUESTIONARY = "questionary>=2.1.0"
         RICH = "rich>=13.9.4"
         PYPERCLIP = "pyperclip>=1.9.0"

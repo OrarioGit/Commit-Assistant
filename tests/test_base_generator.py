@@ -5,6 +5,7 @@ import pytest
 from google.generativeai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
+from commit_assistant.enums.default_value import DefaultValue
 from commit_assistant.utils.style_utils import CommitStyleManager
 
 
@@ -12,13 +13,13 @@ from commit_assistant.utils.style_utils import CommitStyleManager
 def mock_genai() -> Generator[Mock, None, None]:
     """模擬 Google Generative AI"""
     with patch("commit_assistant.core.base_generator.genai") as mock:
-        # 建立模擬的 GenerativeModel 實例
-        model_instance = Mock()
-        mock.GenerativeModel.return_value = model_instance
+        # 建立模擬的 Client 實例
+        client_instance = Mock()
+        mock.Client.return_value = client_instance
 
         # 設定實例的 generate_content 方法
         response = Mock(spec=GenerateContentResponse)
-        model_instance.generate_content.return_value = response
+        client_instance.models.generate_content.return_value = response
 
         yield mock
 
@@ -36,33 +37,32 @@ def test_init_with_api_key(mock_genai: Mock) -> None:
         generator = BaseGeminiAIGenerator()
 
         # 驗證 API 設定
-        mock_genai.configure.assert_called_once_with(api_key="test-key")
-        mock_genai.GenerativeModel.assert_called_once_with("test-model")
+        mock_genai.Client.assert_called_once_with(api_key="test-key")
 
         # 驗證物件建立
-        assert generator.model == mock_genai.GenerativeModel.return_value
+        assert generator.model == "test-model"
         assert isinstance(generator.style_manager, CommitStyleManager)
 
 
 def test_init_with_default_model(mock_genai: Mock) -> None:
     """測試使用預設模型的情況"""
     with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}):
-        BaseGeminiAIGenerator()
+        generator = BaseGeminiAIGenerator()
 
         # 驗證使用預設模型
-        mock_genai.GenerativeModel.assert_called_once_with("gemini-2.0-flash-exp")
+        assert generator.model == DefaultValue.DEFAULT_MODEL.value
 
 
 def test_generate_content_success(mock_genai: Mock) -> None:
     """測試成功生成內容"""
     with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}):
-        # 創建一個新的 mock 作為 model
-        mock_model = Mock()
-        mock_genai.GenerativeModel.return_value = mock_model
+        # 創建一個新的 mock 作為 client
+        mock_client = Mock()
+        mock_genai.Client.return_value = mock_client
 
         # 設定預期的回應
         expected_response = Mock(spec=GenerateContentResponse)
-        mock_model.generate_content.return_value = expected_response
+        mock_client.models.generate_content.return_value = expected_response
 
         generator = BaseGeminiAIGenerator()
 
@@ -71,18 +71,20 @@ def test_generate_content_success(mock_genai: Mock) -> None:
 
         # 驗證結果
         assert response == expected_response
-        mock_model.generate_content.assert_called_once_with("test prompt")
+        mock_client.models.generate_content.assert_called_once_with(
+            model=generator.model, contents="test prompt"
+        )
 
 
 def test_generate_content_error(mock_genai: Mock, capsys: pytest.CaptureFixture) -> None:
     """測試生成內容失敗"""
     with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key"}):
-        # 創建一個新的 mock 作為 model
-        mock_model = Mock()
-        mock_genai.GenerativeModel.return_value = mock_model
+        # 創建一個新的 mock 作為 client
+        mock_client = Mock()
+        mock_genai.Client.return_value = mock_client
 
         # 模擬生成錯誤
-        mock_model.generate_content.side_effect = Exception("API Error")
+        mock_client.models.generate_content.side_effect = Exception("API Error")
 
         generator = BaseGeminiAIGenerator()
 
@@ -91,7 +93,9 @@ def test_generate_content_error(mock_genai: Mock, capsys: pytest.CaptureFixture)
 
         # 驗證結果
         assert response is None
-        mock_model.generate_content.assert_called_once_with("test prompt")
+        mock_client.models.generate_content.assert_called_once_with(
+            model=generator.model, contents="test prompt"
+        )
 
         # 驗證錯誤訊息
         console_output = capsys.readouterr().out

@@ -2,7 +2,8 @@
 
 from .commit_style import CommitStyle, StyleScope
 from .config_key import ConfigKey
+from .default_value import DefaultValue
 from .exit_code import ExitCode
 from .user_choices import UserChoices
 
-__all__ = ["ExitCode", "UserChoices", "ConfigKey", "CommitStyle", "StyleScope"]
+__all__ = ["ExitCode", "UserChoices", "ConfigKey", "CommitStyle", "StyleScope", "DefaultValue"]
