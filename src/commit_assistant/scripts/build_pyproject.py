@@ -6,7 +6,7 @@
 3. 提供命令列介面以便手動更新設定
 
 使用方式：
-    python -m commit_assistant.script.build_pyproject
+    python -m commit_assistant.scripts.build_pyproject
 
 注意：
 - 使用前請先執行 pip install -e . 將專案安裝到本地環境 (建議使用虛擬環境)

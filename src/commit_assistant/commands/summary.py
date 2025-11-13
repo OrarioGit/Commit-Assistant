@@ -4,7 +4,7 @@ from typing import Optional
 
 import click
 import pyperclip
-from google.generativeai.types import GenerateContentResponse
+from google.genai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
 from commit_assistant.enums.exit_code import ExitCode
@@ -161,7 +161,7 @@ def summary(start_from: Optional[str], end_to: Optional[str], author: Optional[s
         summary_generator = CommitSummaryGenerator()
         summary = summary_generator.generate_commit_summary(commit_message, start_dt, end_dt)
 
-    if summary is None:
+    if summary is None or summary.text is None:
         console.print("[red]✗[/red] 摘要生成失敗")
         sys.exit(ExitCode.ERROR)
 

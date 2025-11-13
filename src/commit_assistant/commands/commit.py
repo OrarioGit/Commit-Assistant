@@ -4,7 +4,7 @@ from typing import List, Optional
 
 import click
 import questionary
-from google.generativeai.types import GenerateContentResponse
+from google.genai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
 from commit_assistant.enums.commit_style import CommitStyle
@@ -205,7 +205,7 @@ def commit(commit_msg_file: str, repo_path: str) -> int:
         with loading_spinner("AI 生成 commit message"):
             response = generator.generate_structured_message(changed_files, diff_content)
 
-        if not response:
+        if not response or response.text is None:
             console.print("[red]✗[/red] 生成 commit message 失敗")
             sys.exit(ExitCode.ERROR)
 

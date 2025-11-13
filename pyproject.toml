@@ -45,13 +45,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "commit-assistant"
-version = "0.1.9"
+version = "0.1.10"
 description = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
     "click>=8.0.0",
     "python-dotenv>=1.0.1",
-    "google-generativeai>=0.8.4",
+    "google-genai>=1.50.0",
     "questionary>=2.1.0",
     "rich>=13.9.4",
     "pyperclip>=1.9.0",
