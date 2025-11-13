@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 from click.testing import CliRunner
-from google.generativeai.types import GenerateContentResponse
+from google.genai.types import GenerateContentResponse
 
 from commit_assistant.commands.commit import (
     EnhancedCommitGenerator,

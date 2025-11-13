@@ -2,7 +2,7 @@ from typing import Generator
 from unittest.mock import Mock, patch
 
 import pytest
-from google.generativeai.types import GenerateContentResponse
+from google.genai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
 from commit_assistant.enums.default_value import DefaultValue
