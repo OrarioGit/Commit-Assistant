@@ -5,6 +5,7 @@ import pytest
 from google.genai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
+from commit_assistant.enums.config_key import ConfigKey
 from commit_assistant.enums.default_value import DefaultValue
 from commit_assistant.utils.style_utils import CommitStyleManager
 
@@ -33,7 +34,7 @@ def test_init_without_api_key() -> None:
 
 def test_init_with_api_key(mock_genai: Mock) -> None:
     """測試有 API key 的情況"""
-    with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key", "GENERATIVE_MODEL": "test-model"}):
+    with patch.dict("os.environ", {"GEMINI_API_KEY": "test-key", ConfigKey.USE_MODEL.value: "test-model"}):
         generator = BaseGeminiAIGenerator()
 
         # 驗證 API 設定

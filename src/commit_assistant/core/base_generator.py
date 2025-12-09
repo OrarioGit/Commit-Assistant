@@ -32,6 +32,7 @@ from typing import Optional
 from google import genai
 from google.genai.types import GenerateContentResponse
 
+from commit_assistant.enums.config_key import ConfigKey
 from commit_assistant.enums.default_value import DefaultValue
 from commit_assistant.utils.console_utils import console
 from commit_assistant.utils.style_utils import CommitStyleManager
@@ -47,7 +48,7 @@ class BaseGeminiAIGenerator:
             raise ValueError("請先執行 commit-assistant config setup 設定 API 金鑰")
 
         self.client = genai.Client(api_key=api_key)
-        self.model = os.getenv("GENERATIVE_MODEL", DefaultValue.DEFAULT_MODEL.value)
+        self.model = os.getenv(str(ConfigKey.USE_MODEL.value), DefaultValue.DEFAULT_MODEL.value)
         self.style_manager = CommitStyleManager()
 
     def _generate_content(self, prompt: str) -> Optional[GenerateContentResponse]:
