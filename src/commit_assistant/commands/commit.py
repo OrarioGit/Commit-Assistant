@@ -99,7 +99,7 @@ def edit_commit_message(initial_message: str = "") -> tuple[str, bool]:
             initial_message = message  # 使用上次輸入的內容繼續編輯
 
 
-def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
+def update_commit_message(commit_msg_file: str, ai_message: str) -> tuple[int, bool]:
     """更新 commit message 檔案
 
     Args:
@@ -107,8 +107,10 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
         ai_message (str): 新的 commit message 內容
 
     Returns:
-        int: ExitCode 的值
+        tuple[int, bool]: (ExitCode 的值，是否需要重新產生 commit message)
     """
+    need_regenerate = False
+
     try:
         # 顯示 AI 生成的建議
         display_ai_message(ai_message)
@@ -116,6 +118,7 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
         choices = [
             UserChoices.USE_AI_MESSAGE.value,
             UserChoices.EDIT_AI_MESSAGE.value,
+            UserChoices.REGENERATE_AI_MESSAGE.value,
             UserChoices.CANCEL_OPERATION.value,
         ]
 
@@ -125,7 +128,12 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
         # 如果是使用者直接 ctrl+c 取消
         if choice is None or choice == UserChoices.CANCEL_OPERATION.value:
             console.print("[yellow]Commit 已取消 [/yellow]")
-            return ExitCode.CANCEL.value
+            return ExitCode.CANCEL.value, need_regenerate
+
+        # 如果使用者選擇重新生成
+        if choice == UserChoices.REGENERATE_AI_MESSAGE.value:
+            need_regenerate = True
+            return ExitCode.CANCEL.value, need_regenerate
 
         final_message = ""
 
@@ -135,11 +143,11 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
             edited_message, confirmed = edit_commit_message(ai_message)
             if not confirmed:
                 console.print("[yellow]Commit 已取消 [/yellow]")
-                return ExitCode.CANCEL.value
+                return ExitCode.CANCEL.value, need_regenerate
             final_message = edited_message
         else:
             console.print("[red] 選項錯誤，無法使用的選項 [/red]")
-            return ExitCode.ERROR.value
+            return ExitCode.ERROR.value, need_regenerate
 
         # 去除頭尾的 ``` 符號
         final_message = final_message.strip().strip("`")
@@ -149,11 +157,11 @@ def update_commit_message(commit_msg_file: str, ai_message: str) -> int:
             f.write(final_message)
 
         console.print("[green]✓[/green] Commit message 已更新")
-        return ExitCode.SUCCESS.value
+        return ExitCode.SUCCESS.value, need_regenerate
 
     except Exception as e:
         console.print(f"[red] 錯誤：{str(e)}[/red]")
-        return ExitCode.ERROR.value
+        return ExitCode.ERROR.value, False
 
 
 @click.command()
@@ -201,17 +209,23 @@ def commit(commit_msg_file: str, repo_path: str) -> int:
 
         # 生成 commit message
         generator = EnhancedCommitGenerator()
-        # 生成 commit message
-        with loading_spinner("AI 生成 commit message"):
-            response = generator.generate_structured_message(changed_files, diff_content)
 
-        if not response or response.text is None:
-            console.print("[red]✗[/red] 生成 commit message 失敗")
-            sys.exit(ExitCode.ERROR)
+        while True:
+            # 生成 commit message
+            with loading_spinner("AI 生成 commit message"):
+                response = generator.generate_structured_message(changed_files, diff_content)
 
-        # 更新 commit message
-        exit_code = update_commit_message(commit_msg_file, response.text)
-        sys.exit(exit_code)
+            if not response or response.text is None:
+                console.print("[red]✗[/red] 生成 commit message 失敗")
+                sys.exit(ExitCode.ERROR)
+
+            # 更新 commit message
+            exit_code, need_regenerate = update_commit_message(commit_msg_file, response.text)
+
+            if not need_regenerate:
+                sys.exit(exit_code)
+
+            console.print("[blue] 重新生成 commit message... [/blue]")
     except KeyboardInterrupt:
         console.print("\n[yellow] 操作已取消 [/yellow]")
         sys.exit(ExitCode.CANCEL)
