@@ -92,6 +92,7 @@ def test_get_user_choice(monkeypatch: pytest.MonkeyPatch) -> None:
     choices = [
         UserChoices.USE_AI_MESSAGE.value,
         UserChoices.EDIT_AI_MESSAGE.value,
+        UserChoices.REGENERATE_AI_MESSAGE.value,
         UserChoices.CANCEL_OPERATION.value,
     ]
 
@@ -108,6 +109,7 @@ def test_get_user_choice_invalid_then_valid(monkeypatch: pytest.MonkeyPatch) -> 
     choices = [
         UserChoices.USE_AI_MESSAGE.value,
         UserChoices.EDIT_AI_MESSAGE.value,
+        UserChoices.REGENERATE_AI_MESSAGE.value,
         UserChoices.CANCEL_OPERATION.value,
     ]
 
@@ -342,3 +344,138 @@ def test_edit_commit_message_retry_then_confirm() -> None:
         assert confirmed is True
         # 確認 text 被呼叫了兩次
         assert mock_text.call_count == 2
+
+
+# Regenerate 相關測試
+def test_commit_command_user_regenerate_once(
+    mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
+) -> None:
+    """測試使用者選擇重新生成一次後使用 AI 訊息"""
+    msg_file = tmp_path / "COMMIT_MSG"
+    msg_file.touch()
+
+    runner = CliRunner()
+
+    # 模擬 AI 生成兩次不同的訊息
+    response1 = Mock(spec=GenerateContentResponse)
+    response1.text = "feat: first generated message"
+    response2 = Mock(spec=GenerateContentResponse)
+    response2.text = "feat: second generated message"
+    mock_generator.generate_structured_message.side_effect = [response1, response2]
+
+    # 模擬使用者選擇：第一次選重新生成，第二次選使用 AI 訊息
+    with patch.object(
+        commit_module,
+        "get_user_choice",
+        side_effect=[UserChoices.REGENERATE_AI_MESSAGE.value, UserChoices.USE_AI_MESSAGE.value],
+    ):
+        result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
+
+    assert result.exit_code == ExitCode.SUCCESS.value
+    # 確認最終寫入的是第二次生成的訊息
+    assert msg_file.read_text() == "feat: second generated message"
+    # 確認 generate_structured_message 被呼叫了兩次
+    assert mock_generator.generate_structured_message.call_count == 2
+    # 確認有顯示重新生成的訊息
+    assert "重新生成 commit message..." in result.output
+
+
+def test_commit_command_user_regenerate_multiple_times(
+    mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
+) -> None:
+    """測試使用者多次重新生成後才使用 AI 訊息"""
+    msg_file = tmp_path / "COMMIT_MSG"
+    msg_file.touch()
+
+    runner = CliRunner()
+
+    # 模擬 AI 生成三次不同的訊息
+    response1 = Mock(spec=GenerateContentResponse)
+    response1.text = "feat: first message"
+    response2 = Mock(spec=GenerateContentResponse)
+    response2.text = "feat: second message"
+    response3 = Mock(spec=GenerateContentResponse)
+    response3.text = "feat: third message"
+    mock_generator.generate_structured_message.side_effect = [response1, response2, response3]
+
+    # 模擬使用者選擇：前兩次選重新生成，第三次選使用 AI 訊息
+    with patch.object(
+        commit_module,
+        "get_user_choice",
+        side_effect=[
+            UserChoices.REGENERATE_AI_MESSAGE.value,
+            UserChoices.REGENERATE_AI_MESSAGE.value,
+            UserChoices.USE_AI_MESSAGE.value,
+        ],
+    ):
+        result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
+
+    assert result.exit_code == ExitCode.SUCCESS.value
+    # 確認最終寫入的是第三次生成的訊息
+    assert msg_file.read_text() == "feat: third message"
+    # 確認 generate_structured_message 被呼叫了三次
+    assert mock_generator.generate_structured_message.call_count == 3
+
+
+def test_commit_command_user_regenerate_then_edit(
+    mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
+) -> None:
+    """測試使用者選擇重新生成後，再編輯訊息"""
+    msg_file = tmp_path / "COMMIT_MSG"
+    msg_file.touch()
+
+    runner = CliRunner()
+
+    # 模擬 AI 生成兩次不同的訊息
+    response1 = Mock(spec=GenerateContentResponse)
+    response1.text = "feat: first message"
+    response2 = Mock(spec=GenerateContentResponse)
+    response2.text = "feat: second message"
+    mock_generator.generate_structured_message.side_effect = [response1, response2]
+
+    # 模擬使用者選擇：第一次選重新生成，第二次選編輯
+    with patch.object(
+        commit_module,
+        "get_user_choice",
+        side_effect=[UserChoices.REGENERATE_AI_MESSAGE.value, UserChoices.EDIT_AI_MESSAGE.value],
+    ):
+        # 模擬使用者編輯內容後確認
+        with patch.object(commit_module, "edit_commit_message", return_value=("feat: manually edited", True)):
+            result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
+
+    assert result.exit_code == ExitCode.SUCCESS.value
+    # 確認最終寫入的是編輯後的訊息
+    assert msg_file.read_text() == "feat: manually edited"
+    # 確認 generate_structured_message 被呼叫了兩次
+    assert mock_generator.generate_structured_message.call_count == 2
+
+
+def test_commit_command_user_regenerate_then_cancel(
+    mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
+) -> None:
+    """測試使用者選擇重新生成後，再取消操作"""
+    msg_file = tmp_path / "COMMIT_MSG"
+    msg_file.touch()
+
+    runner = CliRunner()
+
+    # 模擬 AI 生成兩次不同的訊息
+    response1 = Mock(spec=GenerateContentResponse)
+    response1.text = "feat: first message"
+    response2 = Mock(spec=GenerateContentResponse)
+    response2.text = "feat: second message"
+    mock_generator.generate_structured_message.side_effect = [response1, response2]
+
+    # 模擬使用者選擇：第一次選重新生成，第二次選取消
+    with patch.object(
+        commit_module,
+        "get_user_choice",
+        side_effect=[UserChoices.REGENERATE_AI_MESSAGE.value, UserChoices.CANCEL_OPERATION.value],
+    ):
+        result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
+
+    assert result.exit_code == ExitCode.CANCEL.value
+    # 確認有顯示取消的訊息
+    assert "Commit 已取消" in result.output
+    # 確認 generate_structured_message 被呼叫了兩次
+    assert mock_generator.generate_structured_message.call_count == 2
