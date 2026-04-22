@@ -4,7 +4,6 @@ from typing import List, Optional
 
 import click
 import questionary
-from google.genai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
 from commit_assistant.enums.commit_style import CommitStyle
@@ -17,9 +16,7 @@ from commit_assistant.utils.console_utils import console, display_ai_message, lo
 
 
 class EnhancedCommitGenerator(BaseGeminiAIGenerator):
-    def generate_structured_message(
-        self, changed_files: List[str], diff_content: str
-    ) -> Optional[GenerateContentResponse]:
+    def generate_structured_message(self, changed_files: List[str], diff_content: str) -> Optional[str]:
         """生成結構化的 commit message
 
         Args:
@@ -27,15 +24,20 @@ class EnhancedCommitGenerator(BaseGeminiAIGenerator):
             diff_content (str): git diff 內容
 
         Returns:
-            GenerateContentResponse | None: 生成的 commit message
+            str | None: 生成的 commit message
         """
 
         # 獲取指定風格的 prompt
         use_style = os.getenv(ConfigKey.COMMIT_STYLE.value, CommitStyle.CONVENTIONAL.value)
-        use_model = os.getenv(ConfigKey.USE_MODEL.value, "gemini-2.5-flash")
         prompt = self.style_manager.get_prompt(use_style, changed_files, diff_content)
 
-        console.print(f"[cyan] 生成 commit message 使用 <{use_style}> 風格，採用模型 <{use_model}> [/cyan]")
+        if self._use_claude_cli:  # pragma: no cover
+            console.print(f"[cyan] 生成 commit message 使用 <{use_style}> 風格，採用 Claude CLI [/cyan]")
+        else:
+            use_model = os.getenv(ConfigKey.USE_MODEL.value, "gemini-2.5-flash")
+            console.print(
+                f"[cyan] 生成 commit message 使用 <{use_style}> 風格，採用模型 <{use_model}> [/cyan]"
+            )
 
         try:
             return self._generate_content(prompt)
@@ -215,12 +217,12 @@ def commit(commit_msg_file: str, repo_path: str) -> int:
             with loading_spinner("AI 生成 commit message"):
                 response = generator.generate_structured_message(changed_files, diff_content)
 
-            if not response or response.text is None:
+            if not response:
                 console.print("[red]✗[/red] 生成 commit message 失敗")
                 sys.exit(ExitCode.ERROR)
 
             # 更新 commit message
-            exit_code, need_regenerate = update_commit_message(commit_msg_file, response.text)
+            exit_code, need_regenerate = update_commit_message(commit_msg_file, response)
 
             if not need_regenerate:
                 sys.exit(exit_code)
