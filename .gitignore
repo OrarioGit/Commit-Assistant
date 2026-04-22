@@ -174,3 +174,6 @@ cython_debug/
 .ruff_cache/
 src/**/resources/installations.toml
 src/**/resources/latest_upgrade_check
+
+# commit-assistant 個人設定（請勿提交）
+.commit-assistant/.commit-assistant-config

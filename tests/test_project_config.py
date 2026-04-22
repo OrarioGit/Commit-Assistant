@@ -69,6 +69,7 @@ def test_package_data() -> None:
     assert "resources/**/*" in package_files
     assert "resources/hooks/*" in package_files
     assert "resources/config/*" in package_files
+    assert f"resources/config/{ProjectInfo.CONFIG_EXAMPLE_NAME}" in package_files
 
 
 def test_test_settings() -> None:
@@ -87,5 +88,6 @@ def test_file_names() -> None:
     """測試檔案名稱設定"""
     assert ProjectInfo.HOOK_TEMPLATE_NAME == "prepare-commit-msg"
     assert ProjectInfo.CONFIG_TEMPLATE_NAME.startswith(".")
+    assert ProjectInfo.CONFIG_EXAMPLE_NAME == ProjectInfo.CONFIG_TEMPLATE_NAME + ".example"
     assert ProjectInfo.REPO_ASSISTANT_DIR.startswith(".")
     assert ProjectInfo.INSTALLATIONS_FILE.endswith(".toml")

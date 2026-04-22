@@ -4,14 +4,16 @@ exec < /dev/tty
 REPO_ROOT=$(git rev-parse --show-toplevel)
 CONFIG_FILE="$REPO_ROOT/.commit-assistant/.commit-assistant-config"
 
-# 如果配置文件存在，則讀取配置
-if [ -f "$CONFIG_FILE" ]; then
-    source "$CONFIG_FILE"
+# 若個人設定檔不存在，表示此開發者尚未啟用 commit-assistant，直接跳過
+if [ ! -f "$CONFIG_FILE" ]; then
+    exit 0
+fi
 
-    # 檢查是否開啟自動撰寫 commit message 功能
-    if [ "$ENABLE_COMMIT_ASSISTANT" != "true" ]; then
-        exit 0
-    fi
+source "$CONFIG_FILE"
+
+# 檢查是否開啟自動撰寫 commit message 功能
+if [ "$ENABLE_COMMIT_ASSISTANT" != "true" ]; then
+    exit 0
 fi
 
 # 檢查 commit 類型，只有在創建新訊息時才觸發

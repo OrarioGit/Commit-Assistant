@@ -86,6 +86,22 @@ cd your-repository-path
 commit-assistant install
 ```
 
+這個指令會：
+
+- 安裝 Git hook（`prepare-commit-msg`）
+- 在 `.commit-assistant/` 目錄下建立 `.commit-assistant-config.example` 供團隊參考
+- 自動將 `.commit-assistant-config` 加入 `.gitignore`（個人設定不會被提交）
+
+接著，將 example 複製為個人設定檔（hook 偵測到此檔案才會啟動）：
+
+```bash
+cp .commit-assistant/.commit-assistant-config.example .commit-assistant/.commit-assistant-config
+```
+
+> **設計說明**
+> - `.commit-assistant-config.example`：提交至版本控制，供整個團隊參考設定格式
+> - `.commit-assistant-config`：個人設定，已加入 `.gitignore`，不會被提交
+
 ## 使用方法
 
 ### 指令說明
@@ -151,7 +167,7 @@ commit-assistant update --repo-path /path/to/your/repo
 這個指令會：
 
 - 更新專案的 Git hook 設定
-- 更新相關配置文件
+- 更新 `.commit-assistant-config.example` 至最新版本（**不會修改**你的個人 `.commit-assistant-config`）
 - 自動記錄安裝信息
 
 ### 批量更新所有專案
@@ -379,7 +395,7 @@ python -m commit_assistant.scripts.build_pyproject
 A: 再次運行 `commit-assistant config setup` 即可更新
 
 **Q: 如何在特定專案停用自動生成？**
-A: 編輯 `.commit-assistant-config` 檔案，設定 `ENABLE_COMMIT_ASSISTANT=false`
+A: 編輯 `.commit-assistant/.commit-assistant-config`，設定 `ENABLE_COMMIT_ASSISTANT=false`。若尚未建立個人設定檔，請先執行 `cp .commit-assistant/.commit-assistant-config.example .commit-assistant/.commit-assistant-config`
 
 ## 貢獻
 

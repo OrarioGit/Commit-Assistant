@@ -21,7 +21,7 @@ def _load_config_from_config_file(config: dict[str, Any], repo_root: str) -> Non
         repo_root (str): 專案根目錄路徑
     """
     repo_root_path = Path(repo_root)
-    config_file = repo_root_path / ProjectInfo.REPO_ASSISTANT_DIR / ".commit-assistant-config"
+    config_file = repo_root_path / ProjectInfo.REPO_ASSISTANT_DIR / ProjectInfo.CONFIG_TEMPLATE_NAME
 
     if not config_file.exists():
         return
@@ -77,25 +77,48 @@ def load_config(repo_root: str = ".") -> None:
             os.environ[key] = str(value)
 
 
+def _add_to_gitignore(repo_root: str, entry: str) -> None:
+    """將指定路徑加入 .gitignore（若尚未存在）"""
+    gitignore_path = Path(repo_root) / ".gitignore"
+
+    if gitignore_path.exists():
+        content = gitignore_path.read_text(encoding="utf-8")
+        if entry in content:
+            return
+        with open(gitignore_path, "a", encoding="utf-8") as f:
+            f.write(f"\n# commit-assistant 個人設定（請勿提交）\n{entry}\n")
+    else:
+        gitignore_path.write_text(f"# commit-assistant 個人設定（請勿提交）\n{entry}\n", encoding="utf-8")
+
+
 def install_config(repo_root: str) -> None:
     """
     安裝配置文件到專案根目錄
+
+    - 建立 .commit-assistant-config.example 供團隊參考（提交至 repo）
+    - 將 .commit-assistant-config 加入 .gitignore（個人設定，opt-in）
     """
     save_config_path = Path(repo_root) / ProjectInfo.REPO_ASSISTANT_DIR
 
     # 確保專案配置文件夾存在
     save_config_path.mkdir(exist_ok=True)
 
-    config_file = save_config_path / ProjectInfo.CONFIG_TEMPLATE_NAME
-
-    if config_file.exists():
-        return
+    example_file = save_config_path / ProjectInfo.CONFIG_EXAMPLE_NAME
 
     try:
-        # 複製默認的配置文件到專案根目錄
-        default_config_file = ProjectPaths.CONFIG_DIR / ProjectInfo.CONFIG_TEMPLATE_NAME
+        # 複製 example 模板到專案目錄
+        default_example_file = ProjectPaths.CONFIG_DIR / ProjectInfo.CONFIG_EXAMPLE_NAME
+        if not example_file.exists():
+            shutil.copy(default_example_file, example_file)
 
-        shutil.copy(default_config_file, config_file)
+        # 將個人設定檔加入 .gitignore
+        gitignore_entry = f"{ProjectInfo.REPO_ASSISTANT_DIR}/{ProjectInfo.CONFIG_TEMPLATE_NAME}"
+        _add_to_gitignore(repo_root, gitignore_entry)
+
+        console.print(
+            f"[green] 已建立 {ProjectInfo.CONFIG_EXAMPLE_NAME}，"
+            f"請複製為 {ProjectInfo.CONFIG_TEMPLATE_NAME} 並填入您的設定後即可使用 [/green]"
+        )
     except Exception as e:
         console.print(f"[red] 安裝配置文件失敗：{e}[/red]")
         return
