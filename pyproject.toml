@@ -4,6 +4,7 @@ commit_assistant = [
     "resources/hooks/*",
     "resources/config/*",
     "resources/config/.commit-assistant-config",
+    "resources/config/.commit-assistant-config.example",
     "resources/styles/**/*",
 ]
 
@@ -45,7 +46,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "commit-assistant"
-version = "0.1.12"
+version = "0.1.13"
 description = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
 requires-python = ">=3.10"
 dependencies = [

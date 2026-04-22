@@ -9,6 +9,7 @@ from commit_assistant.core.project_config import ProjectInfo
 from commit_assistant.enums.commit_style import CommitStyle
 from commit_assistant.enums.config_key import ConfigKey
 from commit_assistant.utils.config_utils import (
+    _add_to_gitignore,
     _load_config_from_config_file,
     install_config,
     load_config,
@@ -24,11 +25,20 @@ def mock_project_paths(tmp_path: Path) -> Generator[Path, None, None]:
     config_dir = resources_dir / "config"
     config_dir.mkdir(parents=True)
 
-    # 建立測試用的設定檔
+    # 建立測試用的設定檔（template 與 example）
     config_file = config_dir / ".commit-assistant-config"
     config_file.write_text(
         """
         # test config
+        COMMIT_STYLE=custom
+        ENABLE_COMMIT_ASSISTANT=true
+    """,
+        encoding="utf-8",
+    )
+    example_file = config_dir / ".commit-assistant-config.example"
+    example_file.write_text(
+        """
+        # test example config
         COMMIT_STYLE=custom
         ENABLE_COMMIT_ASSISTANT=true
     """,
@@ -115,43 +125,72 @@ def test_load_config_priority(tmp_path: Path) -> None:
 
 
 def test_install_config(tmp_path: Path, mock_project_paths: Path) -> None:
-    """測試安裝設定檔"""
-    # 執行安裝
+    """測試安裝設定檔：建立 example 檔並更新 .gitignore"""
     install_config(str(tmp_path))
 
-    # 確認設定檔被複製
-    config_file = tmp_path / ProjectInfo.REPO_ASSISTANT_DIR / ProjectInfo.CONFIG_TEMPLATE_NAME
-    assert config_file.exists()
-    assert "COMMIT_STYLE" in config_file.read_text()
+    example_file = tmp_path / ProjectInfo.REPO_ASSISTANT_DIR / ProjectInfo.CONFIG_EXAMPLE_NAME
+    assert example_file.exists()
+    assert "COMMIT_STYLE" in example_file.read_text()
+
+    gitignore = tmp_path / ".gitignore"
+    assert gitignore.exists()
+    assert ProjectInfo.CONFIG_TEMPLATE_NAME in gitignore.read_text(encoding="utf-8")
 
 
 def test_install_config_copy_error(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:
     """測試安裝設定檔時發生錯誤"""
-    # 模擬複製檔案時發生錯誤
-    with patch("shutil.copyfile", side_effect=Exception("Mock copy error")):
+    with patch("shutil.copy", side_effect=Exception("Mock copy error")):
         install_config(str(tmp_path))
 
-        # 驗證錯誤訊息
         console_output = capsys.readouterr().out
         assert "安裝配置文件失敗" in console_output
 
 
-def test_install_config_existing_file(tmp_path: Path) -> None:
-    """測試安裝設定檔到已存在檔案的情況"""
-    # 建立模擬的專案資料夾
+def test_install_config_existing_example_file(tmp_path: Path, mock_project_paths: Path) -> None:
+    """測試 example 設定檔已存在時不被覆蓋"""
     repo_config_folder = tmp_path / ProjectInfo.REPO_ASSISTANT_DIR
     repo_config_folder.mkdir()
 
-    # 建立已存在的設定檔
-    config_file = repo_config_folder / ProjectInfo.CONFIG_TEMPLATE_NAME
+    example_file = repo_config_folder / ProjectInfo.CONFIG_EXAMPLE_NAME
     original_content = "COMMIT_STYLE=custom"
-    config_file.write_text(original_content)
+    example_file.write_text(original_content)
 
-    # 執行安裝
     install_config(str(tmp_path))
 
-    # 確認原檔案未被覆蓋
-    assert config_file.read_text() == original_content
+    assert example_file.read_text() == original_content
+
+
+def test_add_to_gitignore_creates_file(tmp_path: Path) -> None:
+    """測試 .gitignore 不存在時自動建立"""
+    _add_to_gitignore(str(tmp_path), ".commit-assistant/.commit-assistant-config")
+
+    gitignore = tmp_path / ".gitignore"
+    assert gitignore.exists()
+    assert ".commit-assistant-config" in gitignore.read_text(encoding="utf-8")
+
+
+def test_add_to_gitignore_appends_to_existing(tmp_path: Path) -> None:
+    """測試 .gitignore 已存在時附加新條目"""
+    gitignore = tmp_path / ".gitignore"
+    gitignore.write_text("node_modules/\n", encoding="utf-8")
+
+    _add_to_gitignore(str(tmp_path), ".commit-assistant/.commit-assistant-config")
+
+    content = gitignore.read_text(encoding="utf-8")
+    assert "node_modules/" in content
+    assert ".commit-assistant-config" in content
+
+
+def test_add_to_gitignore_skips_if_entry_exists(tmp_path: Path) -> None:
+    """測試條目已存在時不重複寫入"""
+    entry = ".commit-assistant/.commit-assistant-config"
+    gitignore = tmp_path / ".gitignore"
+    gitignore.write_text(f"{entry}\n", encoding="utf-8")
+    original_size = gitignore.stat().st_size
+
+    _add_to_gitignore(str(tmp_path), entry)
+
+    assert gitignore.stat().st_size == original_size
 
 
 def test_load_config_file_error(tmp_path: Path, capsys: pytest.CaptureFixture) -> None:

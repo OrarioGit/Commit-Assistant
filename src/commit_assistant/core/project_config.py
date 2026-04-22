@@ -19,7 +19,7 @@ from typing import List
 
 class ProjectInfo:
     NAME: str = "commit-assistant"
-    VERSION: str = "0.1.12"
+    VERSION: str = "0.1.13"
     DESCRIPTION: str = "Commit Assistant - 一個幫助你更好寫 commit message 的 CLI 工具"
     PYTHON_REQUIRES: str = ">=3.10"
     LICENSE: str = "Apache-2.0"
@@ -73,6 +73,7 @@ class ProjectInfo:
             "resources/hooks/*",
             "resources/config/*",
             "resources/config/.commit-assistant-config",
+            "resources/config/.commit-assistant-config.example",
             "resources/styles/**/*",
         ]
     }
@@ -82,6 +83,9 @@ class ProjectInfo:
 
     # 設定檔 template 名稱
     CONFIG_TEMPLATE_NAME = ".commit-assistant-config"
+
+    # 設定檔 example 名稱（提交至 repo，供團隊參考）
+    CONFIG_EXAMPLE_NAME = ".commit-assistant-config.example"
 
     # style template 名稱
     STYLE_TEMPLATE_NAME = "style_template.yaml"
