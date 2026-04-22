@@ -1,36 +1,12 @@
-"""Gemini AI 生成器的基礎類別模組
+"""AI 生成器的基礎類別模組
 
-此模組提供與 Gemini AI API 互動的基礎功能，作為所有 AI 生成器的父類別。
-主要功能包括：
-1. Gemini API 的初始化與設定
-2. 基礎模型實例的建立
-3. 共用的 commit style 管理
-
-典型使用方式:
-```python
-class CustomGenerator(BaseGeminiAIGenerator):
-    def generate_content(self, prompt: str) -> str:
-        response = self.model.generate_content(prompt)
-        return self._process_response(response)
-```
-
-屬性:
-    model: Gemini AI 生成模型實例
-    style_manager: Commit 風格管理器
-
-環境變數:
-    GEMINI_API_KEY: Gemini API 金鑰
-    GENERATIVE_MODEL: 使用的模型名稱，預設為 DefaultValue.DEFAULT_MODEL
-
-錯誤處理:
-    ValueError: 當未設定 API 金鑰時拋出
+支援 Gemini API 與 Claude CLI 兩種 provider。
+透過 USE_CLAUDE_CLI=true 啟用 Claude CLI 模式（不需要 API key，使用已經登入的 Claude Code）。
 """
 
 import os
+import subprocess
 from typing import Optional
-
-from google import genai
-from google.genai.types import GenerateContentResponse
 
 from commit_assistant.enums.config_key import ConfigKey
 from commit_assistant.enums.default_value import DefaultValue
@@ -39,25 +15,45 @@ from commit_assistant.utils.style_utils import CommitStyleManager
 
 
 class BaseGeminiAIGenerator:
-    """建立一個 Gemini Ai Generator 的基類"""
+    """建立一個 AI Generator 的基類，支援 Gemini API 和 Claude CLI"""
 
     def __init__(self) -> None:
-        api_key = os.getenv("GEMINI_API_KEY")
-        if api_key is None:
-            console.print("[yellow] 檢測到尚未設定 Gemini api key [/yellow]")
-            raise ValueError("請先執行 commit-assistant config setup 設定 API 金鑰")
+        self._use_claude_cli = os.getenv(ConfigKey.USE_CLAUDE_CLI.value, "false").lower() == "true"
 
-        self.client = genai.Client(api_key=api_key)
+        if not self._use_claude_cli:
+            from google import genai
+
+            api_key = os.getenv("GEMINI_API_KEY")
+            if api_key is None:
+                console.print("[yellow] 檢測到尚未設定 Gemini api key [/yellow]")
+                raise ValueError("請先執行 commit-assistant config setup 設定 API 金鑰")
+
+            self.client = genai.Client(api_key=api_key)
+
         self.model = os.getenv(str(ConfigKey.USE_MODEL.value), DefaultValue.DEFAULT_MODEL.value)
         self.style_manager = CommitStyleManager()
 
-    def _generate_content(self, prompt: str) -> Optional[GenerateContentResponse]:
+    def _generate_content(self, prompt: str) -> Optional[str]:
         try:
-            response = self.client.models.generate_content(
-                model=self.model,
-                contents=prompt,
-            )
-            return response
+            if self._use_claude_cli:
+                # 如果使用 claude code
+                # 直接呼叫 claude -p 來生成指定的內容
+                result = subprocess.run(
+                    ["claude", "-p", prompt],
+                    capture_output=True,
+                    text=True,
+                    encoding="utf-8",
+                )
+                if result.returncode != 0:
+                    console.print(f"[red]{result.stderr}[/red]")
+                    return None
+                return result.stdout.strip()
+            else:
+                response = self.client.models.generate_content(
+                    model=self.model,
+                    contents=prompt,
+                )
+                return response.text
         except Exception as e:
             console.print("[red] 生成內容時發生錯誤：[/red]")
             console.print(f"[red]{e}[/red]")

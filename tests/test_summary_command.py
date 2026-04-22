@@ -7,7 +7,6 @@ from unittest.mock import Mock, patch
 import click
 import pytest
 from click.testing import CliRunner
-from google.genai.types import GenerateContentResponse
 
 from commit_assistant.commands.summary import (
     CommitSummaryGenerator,
@@ -34,9 +33,7 @@ def mock_summary_generator() -> Generator[Mock, None, None]:
     """模擬 CommitSummaryGenerator"""
     with patch.object(summary_module, "CommitSummaryGenerator") as mock:
         instance = mock.return_value
-        response = Mock(spec=GenerateContentResponse)
-        response.text = "• 測試摘要\n• 測試項目二"
-        instance.generate_commit_summary.return_value = response
+        instance.generate_commit_summary.return_value = "• 測試摘要\n• 測試項目二"
         yield instance
 
 
@@ -87,27 +84,30 @@ def test_parse_date_invalid_days(invalid_date_str: str) -> None:
 # CommitSummaryGenerator 測試
 def test_generate_commit_summary() -> None:
     """測試生成摘要"""
-    with patch.dict("os.environ", {"GEMINI_API_KEY": "test_api_key"}):
-        generator = CommitSummaryGenerator()
+    with patch("google.genai") as mock_genai:
+        mock_genai.Client.return_value = Mock()
+        with patch.dict("os.environ", {"GEMINI_API_KEY": "test_api_key"}):
+            generator = CommitSummaryGenerator()
 
-        with patch.object(generator, "_generate_content") as mock_generate:
-            mock_response = Mock(spec=GenerateContentResponse)
-            mock_generate.return_value = mock_response
+    with patch.object(generator, "_generate_content") as mock_generate:
+        mock_generate.return_value = "• test summary"
 
-            start_dt = datetime(2024, 2, 14)
-            end_dt = datetime(2024, 2, 15)
-            commit_msg = "test commit message"
+        start_dt = datetime(2024, 2, 14)
+        end_dt = datetime(2024, 2, 15)
+        commit_msg = "test commit message"
 
-            response = generator.generate_commit_summary(commit_msg, start_dt, end_dt)
+        response = generator.generate_commit_summary(commit_msg, start_dt, end_dt)
 
-            assert response == mock_response
-            mock_generate.assert_called_once()
+        assert response == "• test summary"
+        mock_generate.assert_called_once()
 
 
 def test_generate_commit_summary_error() -> None:
     """測試生成摘要出現錯誤"""
-    with patch.dict("os.environ", {"GEMINI_API_KEY": "test_api_key"}):
-        generator = CommitSummaryGenerator()
+    with patch("google.genai") as mock_genai:
+        mock_genai.Client.return_value = Mock()
+        with patch.dict("os.environ", {"GEMINI_API_KEY": "test_api_key"}):
+            generator = CommitSummaryGenerator()
 
         with patch.object(generator, "_generate_content", side_effect=Exception("API Error")):
             start_dt = datetime(2024, 2, 14)

@@ -5,7 +5,6 @@ from unittest.mock import Mock, patch
 
 import pytest
 from click.testing import CliRunner
-from google.genai.types import GenerateContentResponse
 
 from commit_assistant.commands.commit import (
     EnhancedCommitGenerator,
@@ -37,40 +36,37 @@ def mock_generator() -> Generator[Mock, None, None]:
     """模擬 EnhancedCommitGenerator"""
     with patch.object(commit_module, "EnhancedCommitGenerator") as mock:
         instance = mock.return_value
-        response = Mock(spec=GenerateContentResponse)
-        response.text = "feat: test commit message"
-        instance.generate_structured_message.return_value = response
+        instance.generate_structured_message.return_value = "feat: test commit message"
         yield instance
 
 
 # EnhancedCommitGenerator 測試
 def test_generate_structured_message() -> None:
     """測試生成結構化的 commit message"""
-    # 先往環境裡加入 API_KEY，讓 EnhancedCommitGenerator 可以正常初始化
-    with patch.dict("os.environ", {ConfigKey.GEMINI_API_KEY.value: "test_api_key"}):
-        generator = EnhancedCommitGenerator()
+    with patch("google.genai") as mock_genai:
+        mock_genai.Client.return_value = Mock()
+        with patch.dict("os.environ", {ConfigKey.GEMINI_API_KEY.value: "test_api_key"}):
+            generator = EnhancedCommitGenerator()
 
-    # Mock generator 裡面的 _generate_content 方法
     with patch.object(generator, "_generate_content") as mock_generate:
-        mock_response = Mock(spec=GenerateContentResponse)
-        mock_generate.return_value = mock_response
+        mock_generate.return_value = "feat: generated message"
 
-        # 模擬要測試的參數
         files = ["test.py"]
         diff = "test diff"
 
         with patch.dict("os.environ", {"COMMIT_STYLE": "custom"}):
             response = generator.generate_structured_message(files, diff)
 
-        assert response == mock_response
+        assert response == "feat: generated message"
         mock_generate.assert_called_once()
 
 
 def test_generate_structured_message_error() -> None:
     """測試生成結構化的 commit message 出現錯誤"""
-    # 先往環境裡加入 API_KEY，讓 EnhancedCommitGenerator 可以正常初始化
-    with patch.dict("os.environ", {ConfigKey.GEMINI_API_KEY.value: "test_api_key"}):
-        generator = EnhancedCommitGenerator()
+    with patch("google.genai") as mock_genai:
+        mock_genai.Client.return_value = Mock()
+        with patch.dict("os.environ", {ConfigKey.GEMINI_API_KEY.value: "test_api_key"}):
+            generator = EnhancedCommitGenerator()
 
     # Mock generator 裡面的 _generate_content 方法
     with patch.object(generator, "_generate_content") as mock_generate:
@@ -357,11 +353,10 @@ def test_commit_command_user_regenerate_once(
     runner = CliRunner()
 
     # 模擬 AI 生成兩次不同的訊息
-    response1 = Mock(spec=GenerateContentResponse)
-    response1.text = "feat: first generated message"
-    response2 = Mock(spec=GenerateContentResponse)
-    response2.text = "feat: second generated message"
-    mock_generator.generate_structured_message.side_effect = [response1, response2]
+    mock_generator.generate_structured_message.side_effect = [
+        "feat: first generated message",
+        "feat: second generated message",
+    ]
 
     # 模擬使用者選擇：第一次選重新生成，第二次選使用 AI 訊息
     with patch.object(
@@ -390,13 +385,11 @@ def test_commit_command_user_regenerate_multiple_times(
     runner = CliRunner()
 
     # 模擬 AI 生成三次不同的訊息
-    response1 = Mock(spec=GenerateContentResponse)
-    response1.text = "feat: first message"
-    response2 = Mock(spec=GenerateContentResponse)
-    response2.text = "feat: second message"
-    response3 = Mock(spec=GenerateContentResponse)
-    response3.text = "feat: third message"
-    mock_generator.generate_structured_message.side_effect = [response1, response2, response3]
+    mock_generator.generate_structured_message.side_effect = [
+        "feat: first message",
+        "feat: second message",
+        "feat: third message",
+    ]
 
     # 模擬使用者選擇：前兩次選重新生成，第三次選使用 AI 訊息
     with patch.object(
@@ -427,11 +420,10 @@ def test_commit_command_user_regenerate_then_edit(
     runner = CliRunner()
 
     # 模擬 AI 生成兩次不同的訊息
-    response1 = Mock(spec=GenerateContentResponse)
-    response1.text = "feat: first message"
-    response2 = Mock(spec=GenerateContentResponse)
-    response2.text = "feat: second message"
-    mock_generator.generate_structured_message.side_effect = [response1, response2]
+    mock_generator.generate_structured_message.side_effect = [
+        "feat: first message",
+        "feat: second message",
+    ]
 
     # 模擬使用者選擇：第一次選重新生成，第二次選編輯
     with patch.object(
@@ -460,11 +452,10 @@ def test_commit_command_user_regenerate_then_cancel(
     runner = CliRunner()
 
     # 模擬 AI 生成兩次不同的訊息
-    response1 = Mock(spec=GenerateContentResponse)
-    response1.text = "feat: first message"
-    response2 = Mock(spec=GenerateContentResponse)
-    response2.text = "feat: second message"
-    mock_generator.generate_structured_message.side_effect = [response1, response2]
+    mock_generator.generate_structured_message.side_effect = [
+        "feat: first message",
+        "feat: second message",
+    ]
 
     # 模擬使用者選擇：第一次選重新生成，第二次選取消
     with patch.object(

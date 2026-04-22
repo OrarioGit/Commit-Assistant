@@ -4,7 +4,6 @@ from typing import Optional
 
 import click
 import pyperclip
-from google.genai.types import GenerateContentResponse
 
 from commit_assistant.core.base_generator import BaseGeminiAIGenerator
 from commit_assistant.enums.exit_code import ExitCode
@@ -16,7 +15,7 @@ from commit_assistant.utils.console_utils import console, display_ai_message, lo
 class CommitSummaryGenerator(BaseGeminiAIGenerator):
     def generate_commit_summary(
         self, commit_message: str, start_dt: datetime, end_dt: datetime
-    ) -> Optional[GenerateContentResponse]:
+    ) -> Optional[str]:
         """生成 commit message 的摘要
 
         Args:
@@ -161,19 +160,19 @@ def summary(start_from: Optional[str], end_to: Optional[str], author: Optional[s
         summary_generator = CommitSummaryGenerator()
         summary = summary_generator.generate_commit_summary(commit_message, start_dt, end_dt)
 
-    if summary is None or summary.text is None:
+    if summary is None:
         console.print("[red]✗[/red] 摘要生成失敗")
         sys.exit(ExitCode.ERROR)
 
     # 將摘要複製到剪貼簿
     try:
-        pyperclip.copy(summary.text)
+        pyperclip.copy(summary)
         console.print("[green]✓[/green] 摘要已複製到剪貼簿")
 
-        display_ai_message(summary.text)
+        display_ai_message(summary)
     except Exception:
         console.print("[red]✗[/red] 無法複製摘要到剪貼簿，請確認操作環境是否支援剪貼簿操作")
         console.print("摘要內容如下：")
-        console.print(summary.text)
+        console.print(summary)
 
     sys.exit(ExitCode.SUCCESS)
