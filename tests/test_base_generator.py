@@ -97,7 +97,9 @@ def test_generate_content_with_claude_cli_success() -> None:
 
     assert response == "feat: claude generated message"
     mock_run.assert_called_once_with(
-        ["claude", "-p", "test prompt"],
+        "claude -p",
+        input="test prompt",
+        shell=True,
         capture_output=True,
         text=True,
         encoding="utf-8",

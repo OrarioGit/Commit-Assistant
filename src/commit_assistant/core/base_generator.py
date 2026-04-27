@@ -36,10 +36,12 @@ class BaseGeminiAIGenerator:
     def _generate_content(self, prompt: str) -> Optional[str]:
         try:
             if self._use_claude_cli:
-                # 如果使用 claude code
-                # 直接呼叫 claude -p 來生成指定的內容
+                # 如果使用 claude code，直接呼叫 claude -p 來生成指定的內容
+                # 使用 shell=True + stdin 來避免傳入的 prompt 過長的問題
                 result = subprocess.run(
-                    ["claude", "-p", prompt],
+                    "claude -p",
+                    input=prompt,
+                    shell=True,
                     capture_output=True,
                     text=True,
                     encoding="utf-8",
