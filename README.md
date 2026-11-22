@@ -6,8 +6,9 @@
 Commit Assistant 是一個基於 AI 的 Git commit 訊息生成工具，它能夠：
 
 - 自動分析你的程式碼變更
-- 使用 Google Gemini AI 生成清晰、規範的 commit 訊息
-- 作為 Git hook 自動運行，提升開發效率
+- 使用 Google Gemini 或 Claude CLI 生成清晰、規範的 commit 訊息
+- 提交前快速審查變更，提醒機密外洩、除錯碼殘留、漏 stage 的檔案等注意事項
+- 作為 Git hook 自動運行，提升開發效率；由 AI agent 發起的 commit 不會被干擾
 
 ## 目錄
 
@@ -16,11 +17,14 @@ Commit Assistant 是一個基於 AI 的 Git commit 訊息生成工具，它能�
    - [安裝套件](#1-安裝套件)
    - [更新套件](#2-更新套件)
    - [設定 API 金鑰](#3-設定-Google-Gemini-API-金鑰)
+   - [改用 Claude CLI](#改用-claude-cli)
    - [設定 Git Hook](#4-設定-Git-Hook)
 3. [使用方法](#使用方法)
    - [指令說明](#指令說明)
    - [自動模式](#自動模式（推薦）)
    - [手動模式](#手動模式)
+   - [注意事項與補充說明](#注意事項與補充說明)
+   - [由 AI agent 發起的 commit](#由-ai-agent-發起的-commit)
    - [配置管理](#配置管理)
 4. [更新管理](#更新管理)
    - [更新單一專案](#更新單一專案)
@@ -77,6 +81,24 @@ pip install -e . -U
 commit-assistant config setup
 ```
 
+預設使用 `gemini-3.5-flash-lite`，可在個人設定檔中透過 `USE_MODEL` 更換，可用模型請參考 [Gemini 模型列表](https://aistudio.google.com/docs/models)。
+
+#### 改用 Claude CLI
+
+如果已經安裝並登入 [Claude Code](https://claude.com/claude-code)，可以改用 Claude CLI 生成，不需要 Gemini API 金鑰。在個人設定檔 `.commit-assistant/.commit-assistant-config` 中設定：
+
+```bash
+USE_CLAUDE_CLI=true
+
+# 可選：sonnet（預設）、haiku、opus
+CLAUDE_CLI_MODEL=sonnet
+
+# 可選：low（預設）、medium、high
+CLAUDE_CLI_EFFORT=low
+```
+
+預設使用 `sonnet` 並以低 effort 執行，同時不載入 MCP server 與個人設定，以縮短等待時間並節省用量。實測 `low` 與較高 effort 產出的 commit message 與重要提醒幾乎相同；若希望注意事項包含更深入的程式碼審查，可以調高 `CLAUDE_CLI_EFFORT`，但用量也會隨之增加。
+
 ### 4. 設定 Git Hook
 
 在你的 Git 專案中運行：
@@ -131,6 +153,31 @@ cmt-a commit
 ```bash
 commit-assistant commit
 ```
+
+### 注意事項與補充說明
+
+AI 會以結構化格式回傳結果，commit message 本體不會再混入解釋文字。除了 commit message 之外，還會顯示：
+
+- **注意事項**：提交前值得留意的問題，依嚴重程度標示
+  - `✗ 高`（紅色）：疑似洩漏機密（API key、密碼、token）、明顯的錯誤、合併衝突標記、引用了忘記 `git add` 的新檔案
+  - `! 中`（黃色）：殘留的除錯輸出、被註解掉的大段程式碼
+  - `· 低`（灰色）：TODO、FIXME 等可以之後處理的事項
+- **補充說明**：AI 選擇這個 type、scope 的理由
+
+注意事項只是提醒，不會阻擋提交。
+
+`package-lock.json`、`uv.lock`、`poetry.lock` 等 lock 檔的內容不會提供給 AI（檔名仍會提供），避免大量無意義的 diff 拖慢速度並增加用量。
+
+為了抓出「新檔案忘記 `git add`」的情況，AI 會收到未被追蹤的檔案名稱（不含內容），只有在 staged 的程式碼確實引用到這些檔案時才會提醒。已修改但未暫存的檔案不會提供給 AI，因此把一批修改拆成多個 commit 分段提交時，不會一直收到「還有檔案沒 stage」的提醒。
+
+### 由 AI agent 發起的 commit
+
+當 Claude Code、Gemini CLI 等 AI agent 執行 `git commit` 時，hook 會偵測到 agent 環境並直接略過，保留 agent 自己撰寫的 commit message。以下情況也同樣不會介入：
+
+- 使用 `-m`、`-F`、`--amend` 等方式已經帶有訊息的 commit
+- 沒有可用終端機的環境，例如 IDE 的圖形介面、CI
+
+> 舊版 hook 在沒有終端機的環境中會導致 commit 失敗，請執行 `commit-assistant update --all-repo` 更新所有專案的 hook。
 
 ### 配置管理
 
@@ -393,6 +440,9 @@ python -m commit_assistant.scripts.build_pyproject
 
 **Q: 如何更新 API 金鑰？**
 A: 再次運行 `commit-assistant config setup` 即可更新
+
+**Q: 原本設定的 `gemini-2.5-flash` 還能用嗎？**
+A: `gemini-2.5-flash` 已被 Google 棄用，自 2026/12/1 起請求會自動轉送至 `gemini-3.5-flash-lite`。建議將個人設定檔中的 `USE_MODEL` 改為 `gemini-3.5-flash-lite`。使用已棄用的模型時，執行過程中也會顯示提醒
 
 **Q: 如何在特定專案停用自動生成？**
 A: 編輯 `.commit-assistant/.commit-assistant-config`，設定 `ENABLE_COMMIT_ASSISTANT=false`。若尚未建立個人設定檔，請先執行 `cp .commit-assistant/.commit-assistant-config.example .commit-assistant/.commit-assistant-config`

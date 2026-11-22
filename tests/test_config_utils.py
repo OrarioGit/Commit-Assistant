@@ -8,6 +8,7 @@ import pytest
 from commit_assistant.core.project_config import ProjectInfo
 from commit_assistant.enums.commit_style import CommitStyle
 from commit_assistant.enums.config_key import ConfigKey
+from commit_assistant.enums.default_value import DefaultValue
 from commit_assistant.utils.config_utils import (
     _add_to_gitignore,
     _load_config_from_config_file,
@@ -101,7 +102,7 @@ def test_load_config_default_values(tmp_path: Path) -> None:
         load_config(str(tmp_path))
 
         assert os.environ[ConfigKey.ENABLE_COMMIT_ASSISTANT.value] == "True"
-        assert os.environ[ConfigKey.USE_MODEL.value] == "gemini-2.5-flash"
+        assert os.environ[ConfigKey.USE_MODEL.value] == DefaultValue.DEFAULT_MODEL.value
         assert os.environ[ConfigKey.COMMIT_STYLE.value] == CommitStyle.CONVENTIONAL.value
 
 

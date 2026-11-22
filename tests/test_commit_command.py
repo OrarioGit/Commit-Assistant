@@ -1,6 +1,6 @@
 import sys
 from pathlib import Path
-from typing import Generator
+from typing import Generator, Optional
 from unittest.mock import Mock, patch
 
 import pytest
@@ -14,11 +14,19 @@ from commit_assistant.commands.commit import (
     edit_commit_message,
     get_user_choice,
 )
+from commit_assistant.core.commit_suggestion import CommitSuggestion
 from commit_assistant.enums.config_key import ConfigKey
 
 # 取得最原始的 commit Module
 # 而不是被 Click 裝飾器包裹後的 Module(會失去原本的屬性，導致無法 mock)
 commit_module = sys.modules["commit_assistant.commands.commit"]
+
+
+@pytest.fixture(autouse=True)
+def mock_interactive_environment() -> Generator[Mock, None, None]:
+    """測試環境沒有終端機，預設模擬為人類在終端機中操作"""
+    with patch.object(commit_module, "is_interactive_environment", return_value=True) as mock:
+        yield mock
 
 
 @pytest.fixture
@@ -36,7 +44,9 @@ def mock_generator() -> Generator[Mock, None, None]:
     """模擬 EnhancedCommitGenerator"""
     with patch.object(commit_module, "EnhancedCommitGenerator") as mock:
         instance = mock.return_value
-        instance.generate_structured_message.return_value = "feat: test commit message"
+        instance.generate_structured_message.return_value = CommitSuggestion(
+            message="feat: test commit message"
+        )
         yield instance
 
 
@@ -48,17 +58,71 @@ def test_generate_structured_message() -> None:
         with patch.dict("os.environ", {ConfigKey.GEMINI_API_KEY.value: "test_api_key"}):
             generator = EnhancedCommitGenerator()
 
-    with patch.object(generator, "_generate_content") as mock_generate:
-        mock_generate.return_value = "feat: generated message"
+    with patch.object(generator, "_generate_structured") as mock_generate:
+        mock_generate.return_value = {
+            "commit_message": "feat: generated message",
+            "notes": "新增功能",
+            "warnings": [{"level": "high", "message": "疑似寫死 API key"}],
+        }
 
         files = ["test.py"]
         diff = "test diff"
 
         with patch.dict("os.environ", {"COMMIT_STYLE": "custom"}):
-            response = generator.generate_structured_message(files, diff)
+            response = generator.generate_structured_message(files, diff, ["new.py"])
 
-        assert response == "feat: generated message"
-        mock_generate.assert_called_once()
+        assert response is not None
+        assert response.message == "feat: generated message"
+        assert response.notes == "新增功能"
+        assert response.warnings[0].message == "疑似寫死 API key"
+
+        # 未追蹤的檔案要附加在 prompt 中
+        prompt = mock_generate.call_args.args[0]
+        assert "new.py" in prompt
+
+
+@pytest.mark.parametrize("structured_result", [None, {"commit_message": "", "notes": "", "warnings": []}])
+def test_generate_structured_message_fallback_to_text(structured_result: Optional[dict]) -> None:
+    """測試結構化輸出失敗時，退回純文字模式"""
+    with patch("google.genai") as mock_genai:
+        mock_genai.Client.return_value = Mock()
+        with patch.dict("os.environ", {ConfigKey.GEMINI_API_KEY.value: "test_api_key"}):
+            generator = EnhancedCommitGenerator()
+
+    with (
+        patch.object(generator, "_generate_structured", return_value=structured_result),
+        patch.object(generator, "_generate_content", return_value="```\nfix: fallback message\n```"),
+    ):
+        response = generator.generate_structured_message(["test.py"], "test diff")
+
+    assert response == CommitSuggestion(message="fix: fallback message")
+
+
+def test_generate_structured_message_fallback_to_text_failed() -> None:
+    """測試結構化輸出與純文字模式都失敗"""
+    with patch("google.genai") as mock_genai:
+        mock_genai.Client.return_value = Mock()
+        with patch.dict("os.environ", {ConfigKey.GEMINI_API_KEY.value: "test_api_key"}):
+            generator = EnhancedCommitGenerator()
+
+    with (
+        patch.object(generator, "_generate_structured", return_value=None),
+        patch.object(generator, "_generate_content", return_value=None),
+    ):
+        assert generator.generate_structured_message(["test.py"], "test diff") is None
+
+
+def test_build_untracked_context() -> None:
+    """測試整理未被追蹤的檔案，超過上限時只列出部分"""
+    assert commit_module._build_untracked_context([]) == ""
+
+    many_files = [f"file{i}.py" for i in range(commit_module.MAX_CONTEXT_FILES + 5)]
+    context = commit_module._build_untracked_context(many_files)
+
+    assert "尚未被 git 追蹤的新檔案" in context
+    assert "file0.py" in context
+    assert "另有 5 個檔案" in context
+    assert f"file{commit_module.MAX_CONTEXT_FILES}.py" not in context
 
 
 def test_generate_structured_message_error() -> None:
@@ -69,7 +133,7 @@ def test_generate_structured_message_error() -> None:
             generator = EnhancedCommitGenerator()
 
     # Mock generator 裡面的 _generate_content 方法
-    with patch.object(generator, "_generate_content") as mock_generate:
+    with patch.object(generator, "_generate_structured") as mock_generate:
         mock_generate.side_effect = Exception("mock error")
 
         # 模擬要測試的參數
@@ -354,8 +418,8 @@ def test_commit_command_user_regenerate_once(
 
     # 模擬 AI 生成兩次不同的訊息
     mock_generator.generate_structured_message.side_effect = [
-        "feat: first generated message",
-        "feat: second generated message",
+        CommitSuggestion(message="feat: first generated message"),
+        CommitSuggestion(message="feat: second generated message"),
     ]
 
     # 模擬使用者選擇：第一次選重新生成，第二次選使用 AI 訊息
@@ -386,9 +450,9 @@ def test_commit_command_user_regenerate_multiple_times(
 
     # 模擬 AI 生成三次不同的訊息
     mock_generator.generate_structured_message.side_effect = [
-        "feat: first message",
-        "feat: second message",
-        "feat: third message",
+        CommitSuggestion(message="feat: first message"),
+        CommitSuggestion(message="feat: second message"),
+        CommitSuggestion(message="feat: third message"),
     ]
 
     # 模擬使用者選擇：前兩次選重新生成，第三次選使用 AI 訊息
@@ -421,8 +485,8 @@ def test_commit_command_user_regenerate_then_edit(
 
     # 模擬 AI 生成兩次不同的訊息
     mock_generator.generate_structured_message.side_effect = [
-        "feat: first message",
-        "feat: second message",
+        CommitSuggestion(message="feat: first message"),
+        CommitSuggestion(message="feat: second message"),
     ]
 
     # 模擬使用者選擇：第一次選重新生成，第二次選編輯
@@ -453,8 +517,8 @@ def test_commit_command_user_regenerate_then_cancel(
 
     # 模擬 AI 生成兩次不同的訊息
     mock_generator.generate_structured_message.side_effect = [
-        "feat: first message",
-        "feat: second message",
+        CommitSuggestion(message="feat: first message"),
+        CommitSuggestion(message="feat: second message"),
     ]
 
     # 模擬使用者選擇：第一次選重新生成，第二次選取消
@@ -470,3 +534,21 @@ def test_commit_command_user_regenerate_then_cancel(
     assert "Commit 已取消" in result.output
     # 確認 generate_structured_message 被呼叫了兩次
     assert mock_generator.generate_structured_message.call_count == 2
+
+
+def test_commit_command_skip_in_non_interactive_environment(
+    mock_interactive_environment: Mock, mock_git_runner: Mock, mock_generator: Mock, tmp_path: Path
+) -> None:
+    """測試由 AI agent 或沒有終端機的環境發起時，不介入 commit"""
+    mock_interactive_environment.return_value = False
+
+    msg_file = tmp_path / "COMMIT_MSG"
+    msg_file.write_text("feat: message from agent")
+
+    runner = CliRunner()
+    result = runner.invoke(commit, ["--msg-file", str(msg_file), "--repo-path", str(tmp_path)])
+
+    assert result.exit_code == ExitCode.SUCCESS.value
+    # 不呼叫 AI，也不修改原本的 commit message
+    mock_generator.generate_structured_message.assert_not_called()
+    assert msg_file.read_text() == "feat: message from agent"

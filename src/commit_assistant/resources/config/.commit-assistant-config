@@ -1,8 +1,18 @@
 # 是否開啟AI自動化撰寫commit message
 ENABLE_COMMIT_ASSISTANT=true
 
-# 模型類型 1. gemini-2.5-flash 2. gemini-2.5-pro 3. gemini-2.0-flash
-USE_MODEL=gemini-2.5-flash
+# Gemini 模型，可用模型請參考 https://aistudio.google.com/docs/models
+# 1. gemini-3.5-flash-lite（預設） 2. gemini-3.8-flash 3. gemini-4-hydrogen
+USE_MODEL=gemini-3.5-flash-lite
+
+# 是否改用 Claude CLI 生成（需已安裝並登入 Claude Code，不需要 Gemini API 金鑰）
+USE_CLAUDE_CLI=false
+
+# Claude CLI 使用的模型 1. sonnet（預設） 2. haiku 3. opus
+CLAUDE_CLI_MODEL=sonnet
+
+# Claude CLI 的 effort 1. low（預設，省用量） 2. medium 3. high（審查較深入，但用量較高）
+CLAUDE_CLI_EFFORT=low
 
 # commit style 1. conventional 2. emoji 3. angular 4. custom
 COMMIT_STYLE=conventional

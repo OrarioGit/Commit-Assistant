@@ -60,6 +60,22 @@ class CommandRunner:
             raise
 
 
+# 不放進 diff 內容的 lock 檔
+LOCK_FILE_NAMES = [
+    "package-lock.json",
+    "yarn.lock",
+    "pnpm-lock.yaml",
+    "bun.lockb",
+    "poetry.lock",
+    "uv.lock",
+    "Pipfile.lock",
+    "Cargo.lock",
+    "composer.lock",
+    "Gemfile.lock",
+    "go.sum",
+]
+
+
 class GitCommandRunner(CommandRunner):
     def __init__(self, repo_path: str) -> None:
         super().__init__()
@@ -82,10 +98,21 @@ class GitCommandRunner(CommandRunner):
         return result.splitlines()
 
     def get_staged_diff(self) -> str:
-        """獲取暫存的 diff 內容"""
-        cmd = ["git", "diff", "--cached"]
+        """獲取暫存的 diff 內容
+
+        lock 檔的 diff 動輒上千行，對撰寫 commit message 沒有幫助，只會拖慢速度並增加用量，
+        因此從 diff 中排除。檔名仍會出現在 get_staged_files 的結果中，AI 依然知道它們有變更。
+        """
+        excludes = [f":(exclude,glob)**/{name}" for name in LOCK_FILE_NAMES]
+        cmd = ["git", "diff", "--cached", "--", ".", *excludes]
         result = self.run_git_command(cmd)
         return result
+
+    def get_untracked_files(self) -> List[str]:
+        """獲取尚未被 git 追蹤的文件列表（已排除 .gitignore 中的檔案）"""
+        cmd = ["git", "ls-files", "--others", "--exclude-standard"]
+        result = self.run_git_command(cmd)
+        return result.splitlines()
 
     def get_commits_in_date_range(self, start_dt: datetime, end_dt: datetime, author: Optional[str]) -> str:
         """獲取指定日期範圍內的 commit message

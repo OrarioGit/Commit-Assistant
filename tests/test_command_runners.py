@@ -144,6 +144,13 @@ def test_get_staged_files(git_runner: GitCommandRunner) -> None:
         mock_run.assert_called_once_with(["git", "diff", "--cached", "--name-only"])
 
 
+def test_get_untracked_files(git_runner: GitCommandRunner) -> None:
+    """測試獲取未被追蹤的檔案列表"""
+    with patch.object(git_runner, "run_git_command", return_value="new.py") as mock_run:
+        assert git_runner.get_untracked_files() == ["new.py"]
+        mock_run.assert_called_once_with(["git", "ls-files", "--others", "--exclude-standard"])
+
+
 def test_get_staged_diff(git_runner: GitCommandRunner) -> None:
     """測試獲取暫存的 diff 內容"""
     mock_diff = "mock diff content"
@@ -153,7 +160,12 @@ def test_get_staged_diff(git_runner: GitCommandRunner) -> None:
         diff = git_runner.get_staged_diff()
 
         assert diff == mock_diff
-        mock_run.assert_called_once_with(["git", "diff", "--cached"])
+
+        # lock 檔要從 diff 中排除
+        cmd = mock_run.call_args.args[0]
+        assert cmd[:5] == ["git", "diff", "--cached", "--", "."]
+        assert ":(exclude,glob)**/package-lock.json" in cmd
+        assert ":(exclude,glob)**/uv.lock" in cmd
 
 
 def test_get_commits_in_date_range(git_runner: GitCommandRunner) -> None:
