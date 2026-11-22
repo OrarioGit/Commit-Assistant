@@ -9,6 +9,7 @@ from commit_assistant.core.paths import ProjectPaths
 from commit_assistant.core.project_config import ProjectInfo
 from commit_assistant.enums.commit_style import CommitStyle
 from commit_assistant.enums.config_key import ConfigKey
+from commit_assistant.enums.default_value import DefaultValue
 from commit_assistant.utils.console_utils import console
 
 
@@ -52,7 +53,7 @@ def load_config(repo_root: str = ".") -> None:
     # 定義默認配置
     config: dict[str, Any] = {
         ConfigKey.ENABLE_COMMIT_ASSISTANT.value: True,
-        ConfigKey.USE_MODEL.value: "gemini-2.5-flash",
+        ConfigKey.USE_MODEL.value: DefaultValue.DEFAULT_MODEL.value,
         ConfigKey.GEMINI_API_KEY.value: None,
         ConfigKey.COMMIT_STYLE.value: CommitStyle.CONVENTIONAL.value,
     }

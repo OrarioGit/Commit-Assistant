@@ -5,7 +5,10 @@ from rich.console import Console, Group
 from rich.padding import Padding
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich.table import Table
 from rich.text import Text
+
+from commit_assistant.core.commit_suggestion import CommitSuggestion, WarningLevel
 
 console = Console()
 
@@ -33,6 +36,59 @@ def loading_spinner(description: str = "處理中") -> Iterator[None]:
             yield None
         finally:
             progress.update(task, completed=True)
+
+
+_WARNING_LEVEL_STYLES = {
+    WarningLevel.HIGH: ("✗ 高", "bold red", "red"),
+    WarningLevel.MEDIUM: ("! 中", "bold yellow", "yellow"),
+    WarningLevel.LOW: ("· 低", "dim", "default"),
+}
+
+
+def display_commit_suggestion(suggestion: CommitSuggestion) -> None:
+    """顯示 AI 產出的 commit 建議：commit message、注意事項、補充說明
+
+    Args:
+        suggestion (CommitSuggestion): AI 產出的建議
+    """
+    display_ai_message(suggestion.message)
+
+    if suggestion.warnings:
+        table = Table.grid(padding=(0, 2))
+        table.add_column(no_wrap=True)
+        table.add_column()
+
+        for warning in suggestion.warnings:
+            label, label_style, message_style = _WARNING_LEVEL_STYLES[warning.level]
+            table.add_row(Text(label, style=label_style), Text(warning.message, style=message_style))
+
+        # 只要有 high 等級的提醒，整個面板以紅框強調
+        has_high = any(w.level == WarningLevel.HIGH for w in suggestion.warnings)
+        border_style = "red" if has_high else "yellow"
+
+        console.print(
+            Panel(
+                Padding(table, (0, 1)),
+                title=Text("⚠ 注意事項", style=f"bold {border_style}"),
+                title_align="left",
+                border_style=border_style,
+                expand=False,
+            )
+        )
+
+    if suggestion.notes:
+        console.print(
+            Panel(
+                Padding(Text(suggestion.notes, style="dim"), (0, 1)),
+                title=Text("補充說明", style="dim"),
+                title_align="left",
+                border_style="bright_black",
+                expand=False,
+            )
+        )
+
+    if suggestion.warnings or suggestion.notes:
+        console.print()
 
 
 def display_ai_message(ai_message: str) -> None:
